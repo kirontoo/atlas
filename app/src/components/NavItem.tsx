@@ -23,11 +23,9 @@ const NavItem = ({
   return (
     <>
       {heading ? (
-        <Text casing="uppercase">
-          <Flex align="center" p="2" mx="4" fontWeight="700" {...rest}>
-            {name}
-          </Flex>
-        </Text>
+        <Flex align="center" p="2" mx="4" fontWeight="700" {...rest}>
+          <Text casing="uppercase">{name}</Text>
+        </Flex>
       ) : (
         <Link
           href={href}

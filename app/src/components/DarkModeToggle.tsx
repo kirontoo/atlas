@@ -8,6 +8,7 @@ export default function DarkModeToggle(props: ButtonProps) {
       aria-label="Toggle Color Mode"
       onClick={toggleColorMode}
       _focus={{ boxShadow: 'none' }}
+      variant="ghost"
       w="fit-content"
       {...props}
     >

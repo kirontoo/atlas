@@ -4,8 +4,27 @@ import {
   withDefaultColorScheme,
 } from '@chakra-ui/react';
 
+const styles = {
+  global: (props) => ({
+    body: {
+      fontFamily: 'body',
+      color: mode('gray.800', 'whiteAlpha.900')(props),
+      bg: mode('gray.100', 'gray.800')(props),
+      lineHeight: 'base',
+    },
+    '*::placeholder': {
+      color: mode('gray.400', 'whiteAlpha.400')(props),
+    },
+    '*, *::before, &::after': {
+      borderColor: mode('gray.200', 'whiteAlpha.300')(props),
+      wordWrap: 'break-word',
+    },
+  }),
+};
+
 const theme = extendTheme(
   {
+    styles,
     colors: {
       primary: {
         main: baseTheme.colors.purple[400],
@@ -17,5 +36,7 @@ const theme = extendTheme(
     colorScheme: 'primary',
   }),
 );
+
+import { mode } from '@chakra-ui/theme-tools';
 
 export default theme;

@@ -4,7 +4,7 @@ import { IconType } from 'react-icons';
 
 interface NavItemProps extends FlexProps {
   name: string;
-  icon?: IconType;
+  icon?: IconType | null;
   href?: string;
   active?: boolean;
   heading?: boolean;

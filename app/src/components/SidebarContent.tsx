@@ -18,7 +18,7 @@ interface SidebarProps extends BoxProps {
 
 export interface LinkItemProps {
   name: string;
-  icon: IconType;
+  icon: IconType | null;
   href?: string;
 }
 

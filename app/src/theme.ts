@@ -7,7 +7,10 @@ import {
 const theme = extendTheme(
   {
     colors: {
-      primary: baseTheme.colors.purple,
+      primary: {
+        main: baseTheme.colors.purple[400],
+        ...baseTheme.colors.purple,
+      },
     },
   },
   withDefaultColorScheme({

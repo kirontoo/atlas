@@ -1,10 +1,4 @@
-import {
-  Box,
-  Drawer,
-  DrawerContent,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
 import Navbar from '../Navbar';

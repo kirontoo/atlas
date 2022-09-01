@@ -20,6 +20,7 @@ export interface LinkItemProps {
   name: string;
   icon: IconType | null;
   href?: string;
+  heading?: boolean;
 }
 
 const SidebarContent = ({ onClose, links, ...rest }: SidebarProps) => {

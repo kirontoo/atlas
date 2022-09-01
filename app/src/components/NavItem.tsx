@@ -1,25 +1,17 @@
 import { Flex, FlexProps, Icon, Link, Text, useColorModeValue } from '@chakra-ui/react';
 import { ReactText } from 'react';
 import { IconType } from 'react-icons';
+import { NavLink as ReactLink, To } from 'react-router-dom';
 
 interface NavItemProps extends FlexProps {
   name: string;
   icon?: IconType | null;
-  href?: string;
-  active?: boolean;
+  href?: To;
   heading?: boolean;
   children?: ReactText;
 }
 
-const NavItem = ({
-  icon,
-  name,
-  href,
-  active,
-  heading,
-  children,
-  ...rest
-}: NavItemProps) => {
+const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps) => {
   return (
     <>
       {heading ? (
@@ -28,47 +20,55 @@ const NavItem = ({
         </Flex>
       ) : (
         <Link
-          href={href}
-          style={{ textDecoration: 'none' }}
+          as={ReactLink}
+          to={href!}
+          textDecoration="none"
           _focus={{ boxShadow: 'none' }}
           w="full"
+          end
         >
-          <Flex
-            align="center"
-            p="2"
-            mx="4"
-            borderRadius="lg"
-            role="group"
-            cursor="pointer"
-            fontWeight="700"
-            bg={active ? useColorModeValue('white', 'gray.700') : 'inherit'}
-            boxShadow={active ? 'base' : 'none'}
-            _active={{
-              bg: useColorModeValue('white', 'gray.700'),
-              boxShadow: 'base',
-              color: useColorModeValue('gray.700', 'white'),
-            }}
-            _hover={{
-              bg: useColorModeValue('gray.200', 'gray.700'),
-            }}
-            color={active ? 'gray.700' : useColorModeValue('gray.500', 'gray.300')}
-            {...rest}
-          >
-            {icon && (
+          {({ isActive }: { isActive: boolean }) => {
+            return (
               <Flex
-                color={active ? 'white' : 'primary.main'}
-                p="2"
-                bg={active ? 'primary.main' : useColorModeValue('white', 'gray.700')}
-                mr="4"
-                borderRadius={active ? 'md' : 'full'}
-                justify="center"
                 align="center"
+                p="2"
+                mx="4"
+                borderRadius="lg"
+                role="group"
+                cursor="pointer"
+                fontWeight="700"
+                bg={isActive ? useColorModeValue('white', 'gray.700') : 'inherit'}
+                boxShadow={isActive ? 'base' : 'none'}
+                _active={{
+                  bg: useColorModeValue('white', 'gray.700'),
+                  boxShadow: 'base',
+                  color: useColorModeValue('gray.700', 'white'),
+                }}
+                _hover={{
+                  bg: useColorModeValue('gray.200', 'gray.700'),
+                }}
+                color={isActive ? useColorModeValue('gray.700', 'white') : 'gray.400'}
+                {...rest}
               >
-                <Icon fontSize="16" as={icon} />
+                {icon && (
+                  <Flex
+                    color={isActive ? 'white' : 'primary.main'}
+                    p="2"
+                    bg={
+                      isActive ? 'primary.main' : useColorModeValue('white', 'gray.700')
+                    }
+                    mr="4"
+                    borderRadius={isActive ? 'md' : 'full'}
+                    justify="center"
+                    align="center"
+                  >
+                    <Icon fontSize="16" as={icon} />
+                  </Flex>
+                )}
+                {children ?? name}
               </Flex>
-            )}
-            {children ?? name}
-          </Flex>
+            );
+          }}
         </Link>
       )}
     </>

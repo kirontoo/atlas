@@ -10,7 +10,12 @@ import { createSlice } from '@reduxjs/toolkit';
 export const TOKEN_KEY = 'user_token';
 const token = localStorage.getItem(TOKEN_KEY) ?? null;
 
-const initialState = {
+interface IAuthState {
+  loading: boolean;
+  token: string | null;
+}
+
+const initialState: IAuthState = {
   loading: false,
   token: token,
 };
@@ -24,18 +29,15 @@ const userSlice = createSlice({
   },
 });
 
-export function logout(state) {
+export function logout() {
   return {
-    ...state,
     type: 'user/logout',
-    loading: false,
-    token: null,
+    ...initialState,
   };
 }
 
-export function login(state) {
+export function login() {
   return {
-    ...state,
     type: 'user/login',
     loading: false,
     token: 'logged in',

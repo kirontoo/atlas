@@ -3,8 +3,8 @@ import { GiTicket, GiWorld } from 'react-icons/gi';
 import { ImHome } from 'react-icons/im';
 import { Outlet } from 'react-router-dom';
 
-import SidebarWithHeader from '../components/layouts/SidebarWithHeader';
-import { LinkItemProps } from '../components/SidebarContent';
+import SidebarWithHeader from '../../components/layouts/SidebarWithHeader';
+import { LinkItemProps } from '../../components/SidebarContent';
 
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Dashboard', icon: ImHome, href: '/dashboard' },

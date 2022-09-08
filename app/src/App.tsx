@@ -1,7 +1,38 @@
 import './App.css';
 
+import { ChakraProvider } from '@chakra-ui/react';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import SignUp from './pages/SignUp';
+import Store from './store';
+import theme from './theme';
+
 function App() {
-  return <div>hello world</div>;
+  return (
+    <ChakraProvider theme={theme}>
+      <Provider store={Store}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />}>
+              <Route path="" element={<div> hello home</div>} />
+              <Route path="projects" element={<div>projects</div>} />
+              <Route path="tickets" element={<div>tickets</div>} />
+              <Route path="settings" element={<div>settings</div>} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    </ChakraProvider>
+  );
 }
 
 export default App;

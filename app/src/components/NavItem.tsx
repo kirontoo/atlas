@@ -1,4 +1,12 @@
-import { Flex, FlexProps, Icon, Link, Text, useColorModeValue } from '@chakra-ui/react';
+import {
+  Flex,
+  FlexProps,
+  Icon,
+  Link,
+  Text,
+  useColorMode,
+  useColorModeValue,
+} from '@chakra-ui/react';
 import { ReactText } from 'react';
 import { IconType } from 'react-icons';
 import { NavLink as ReactLink, To } from 'react-router-dom';
@@ -12,6 +20,17 @@ interface NavItemProps extends FlexProps {
 }
 
 const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps) => {
+  let { colorMode } = useColorMode();
+  let color = {
+    dark: {
+      bg: 'gray.700',
+      color: 'white',
+    },
+    light: {
+      bg: 'white',
+      color: 'gray.700',
+    },
+  };
   return (
     <>
       {heading ? (
@@ -37,7 +56,13 @@ const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps)
                 role="group"
                 cursor="pointer"
                 fontWeight="700"
-                bg={isActive ? useColorModeValue('white', 'gray.700') : 'inherit'}
+                bg={
+                  isActive
+                    ? colorMode == 'dark'
+                      ? color.dark.bg
+                      : color.light.bg
+                    : 'inherit'
+                }
                 boxShadow={isActive ? 'base' : 'none'}
                 _active={{
                   bg: useColorModeValue('white', 'gray.700'),
@@ -47,7 +72,13 @@ const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps)
                 _hover={{
                   bg: useColorModeValue('gray.200', 'gray.700'),
                 }}
-                color={isActive ? useColorModeValue('gray.700', 'white') : 'gray.400'}
+                color={
+                  isActive
+                    ? colorMode == 'dark'
+                      ? color.dark.color
+                      : color.light.color
+                    : 'gray.400'
+                }
                 {...rest}
               >
                 {icon && (
@@ -55,7 +86,11 @@ const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps)
                     color={isActive ? 'white' : 'primary.main'}
                     p="2"
                     bg={
-                      isActive ? 'primary.main' : useColorModeValue('white', 'gray.700')
+                      isActive
+                        ? 'primary.main'
+                        : colorMode == 'dark'
+                        ? color.dark.bg
+                        : color.light.bg
                     }
                     mr="4"
                     borderRadius={isActive ? 'md' : 'full'}

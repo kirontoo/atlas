@@ -18,14 +18,24 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { FiBell, FiChevronDown, FiMenu, FiPlus } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 
 import DarkModeToggle from './DarkModeToggle';
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
+
 const Navbar = ({ onOpen, ...rest }: MobileProps) => {
+  let location = useLocation();
+  let [breadcrumbItems, setBreadcrumbItems] = useState<string[]>([]);
+
+  useEffect(() => {
+    setBreadcrumbItems(() => location.pathname.split('/').slice(1));
+  }, [location]);
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -54,19 +64,16 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
 
       <HStack spacing="2" display={{ base: 'none', md: 'flex' }}>
         <Breadcrumb>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Project</BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink color="primary.main" href="#">
-              Atlas
-            </BreadcrumbLink>
-          </BreadcrumbItem>
+          {breadcrumbItems.map((r: string, index: number) => {
+            return (
+              <BreadcrumbItem
+                key={r}
+                isCurrentPage={index === breadcrumbItems.length - 1}
+              >
+                <BreadcrumbLink textTransform="capitalize">{r}</BreadcrumbLink>
+              </BreadcrumbItem>
+            );
+          })}
         </Breadcrumb>
       </HStack>
       <HStack spacing={{ base: '0', md: '2' }}>

@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import type { User } from '../../../types';
+import { AdminUser, MemberUser, OwnerUser } from './MockUserData';
+
 /*
  * Features:
  * user log in
@@ -13,11 +16,13 @@ const token = localStorage.getItem(TOKEN_KEY) ?? null;
 interface IAuthState {
   loading: boolean;
   token: string | null;
+  user: User | null;
 }
 
 const initialState: IAuthState = {
   loading: false,
   token: token,
+  user: null,
 };
 
 const userSlice = createSlice({
@@ -26,6 +31,8 @@ const userSlice = createSlice({
   reducers: {
     logout,
     login,
+    loginAsAdmin,
+    loginAsOwner,
   },
 });
 
@@ -36,11 +43,30 @@ export function logout() {
   };
 }
 
+export function loginAsAdmin() {
+  return {
+    type: 'user/login',
+    loading: false,
+    token: 'logged in',
+    user: AdminUser,
+  };
+}
+
+export function loginAsOwner() {
+  return {
+    type: 'user/login',
+    loading: false,
+    token: 'logged in',
+    user: OwnerUser,
+  };
+}
+
 export function login() {
   return {
     type: 'user/login',
     loading: false,
     token: 'logged in',
+    user: MemberUser,
   };
 }
 

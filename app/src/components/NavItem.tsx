@@ -93,7 +93,7 @@ const NavItem = ({ icon, name, href, heading, children, ...rest }: NavItemProps)
                         : color.light.bg
                     }
                     mr="4"
-                    borderRadius={isActive ? 'md' : 'full'}
+                    borderRadius={isActive ? '0.7rem' : 'full'}
                     justify="center"
                     align="center"
                   >

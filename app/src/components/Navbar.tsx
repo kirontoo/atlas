@@ -7,6 +7,7 @@ import {
   Button,
   Flex,
   FlexProps,
+  Hide,
   HStack,
   IconButton,
   Menu,
@@ -14,6 +15,7 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Show,
   Text,
   useColorModeValue,
   useDisclosure,
@@ -82,9 +84,11 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
           </Breadcrumb>
         </HStack>
         <HStack spacing={{ base: '0', md: '2' }}>
-          <Button leftIcon={<FiPlus />} size="sm" onClick={onOpenModal}>
-            New Ticket
-          </Button>
+          <Show above="md">
+            <Button leftIcon={<FiPlus />} size="sm" onClick={onOpenModal}>
+              New Ticket
+            </Button>
+          </Show>
           <IconButton
             size="lg"
             variant="ghost"

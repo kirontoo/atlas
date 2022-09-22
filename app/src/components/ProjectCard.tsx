@@ -3,7 +3,13 @@ import { Box, Button, Heading, Image, Stack, Text } from '@chakra-ui/react';
 
 function ProjectCard() {
   return (
-    <Box maxW={'450px'} w={'full'} p={6} overflow={'hidden'}>
+    <Box
+      maxW={'450px'}
+      minW={{ base: '18rem', md: 'full' }}
+      w={'full'}
+      p={6}
+      overflow={'hidden'}
+    >
       <Box
         h={'240px'}
         bg={'gray.100'}

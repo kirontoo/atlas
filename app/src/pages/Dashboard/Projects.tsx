@@ -3,6 +3,7 @@ import {
   Box,
   Center,
   Heading,
+  HStack,
   Icon,
   Image,
   Stack,
@@ -26,7 +27,11 @@ function Projects() {
   const { isOpen, onOpen: onOpenModal, onClose } = useDisclosure();
   return (
     <>
-      <Grid templateColumns="repeat(6, minmax(200px, 1fr)" gap={4} gridAutoFlow="dense">
+      <Grid
+        templateColumns={{ base: '1fr', md: 'repeat(6, minmax(200px, 1fr)' }}
+        gap={4}
+        gridAutoFlow="dense"
+      >
         <GridItem
           colSpan={6}
           bg={useColorModeValue('white', 'gray.700')}
@@ -35,6 +40,8 @@ function Projects() {
           shadow="md"
           display="flex"
           gap="4"
+          overflowX="scroll"
+          maxWidth="100vw"
         >
           <ProjectCard />
           <ProjectCard />
@@ -42,6 +49,7 @@ function Projects() {
 
           <Box
             maxW={'400px'}
+            minW={{ base: '18rem', md: 'full' }}
             w={'full'}
             rounded={'md'}
             p={6}

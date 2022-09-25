@@ -40,7 +40,7 @@ function Projects() {
           shadow="md"
           display="flex"
           gap="4"
-          overflowX="scroll"
+          overflowX="auto"
           maxWidth="100vw"
         >
           <ProjectCard />
@@ -48,8 +48,8 @@ function Projects() {
           <ProjectCard />
 
           <Box
-            maxW={'400px'}
-            minW={{ base: '18rem', md: 'full' }}
+            maxW={'450px'}
+            minW={{ base: '18rem', md: 'inherit' }}
             w={'full'}
             rounded={'md'}
             p={6}

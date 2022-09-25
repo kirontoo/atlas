@@ -5,7 +5,7 @@ function ProjectCard() {
   return (
     <Box
       maxW={'450px'}
-      minW={{ base: '18rem', md: 'full' }}
+      minW={{ base: '18rem', md: 'inherit' }}
       w={'full'}
       p={6}
       overflow={'hidden'}

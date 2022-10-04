@@ -10,6 +10,13 @@ const AdminUser: User = {
   username: 'admin_user',
   email: 'admin@user.com',
   role: Role.Admin,
+  avatar: {
+    src: faker.image.avatar(),
+    width: 640,
+    height: 480,
+  },
+  createdAt: faker.date.past().toISOString(),
+  updatedAt: faker.date.recent().toISOString(),
 };
 
 const MemberUser: User = {
@@ -19,6 +26,13 @@ const MemberUser: User = {
   username: 'member_user',
   email: 'member@user.com',
   role: Role.Member,
+  avatar: {
+    src: faker.image.avatar(),
+    height: 480,
+    width: 640,
+  },
+  createdAt: faker.date.past().toISOString(),
+  updatedAt: faker.date.recent().toISOString(),
 };
 
 const OwnerUser: User = {
@@ -28,6 +42,13 @@ const OwnerUser: User = {
   username: 'owner_user',
   email: 'owner@user.com',
   role: Role.Owner,
+  avatar: {
+    src: faker.image.avatar(),
+    width: 640,
+    height: 480,
+  },
+  createdAt: faker.date.past().toISOString(),
+  updatedAt: faker.date.recent().toISOString(),
 };
 
 export { AdminUser, MemberUser, OwnerUser };

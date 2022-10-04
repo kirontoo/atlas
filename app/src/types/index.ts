@@ -4,35 +4,56 @@ enum Role {
   Owner,
 }
 
+type UUID = string;
+
 interface User {
-  id: string;
+  id: UUID;
   firstName?: string;
   lastName?: string;
   username: string;
   email: string;
   role: Role;
-}
-
-interface Ticket {
-  id: string;
-  tags: string[];
-  title: string;
-  assigned: string[]; // user ids
-}
-
-interface Organization {
-  id: string;
-  name: string;
-}
-
-interface Project {
-  ownerId: string;
-  id: string;
-  name: string;
-  createdBy: string;
+  avatar: {
+    src: string;
+    height: number;
+    width: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
-export type { Organization, Project, Ticket, User };
+interface Ticket {
+  id: UUID;
+  tags: string[];
+  name: string;
+  assignedUsers: UUID[]; // user ids
+  description: string;
+  projectId: string;
+  dueDate: string | null;
+  createdBy: UUID;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Organization {
+  id: UUID;
+  name: string;
+  ownerId: UUID;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Project {
+  ownerId: string;
+  id: UUID;
+  name: string;
+  description: string;
+  createdBy: UUID;
+  createdAt: string;
+  updatedAt: string;
+  teamMembers: UUID[]; // user ids
+}
+
+export type { Organization, Project, Ticket, User, UUID };
 export { Role };

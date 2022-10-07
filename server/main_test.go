@@ -18,7 +18,7 @@ func TestLoadEnv(t *testing.T) {
 
 		if port == "" {
 			t.Fail()
-			t.Error("Could not load 'MONGODB_URI' environmental variable")
+			t.Error("Could not load 'PORT' environmental variable")
 		}
 	})
 }

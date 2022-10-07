@@ -28,6 +28,10 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+type api struct {
+	router *gin.Engine
+}
+
 func main() {
 	loadEnv()
 
@@ -36,20 +40,29 @@ func main() {
 		port = "8080"
 	}
 
+	uri := os.Getenv("MONGODB_URI")
+	if uri == "" {
+		log.Fatal("You must set your 'MONGODB_URI' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+	}
+
 	gin.ForceConsoleColor()
-	router := gin.Default()
+	api := &api{
+		router: gin.Default(),
+	}
+
+	// db := getMongoClient(uri)
 
 	// set middlewares
-	router.Use(CORSMiddleware())
+	api.router.Use(CORSMiddleware())
 
-	router.GET("/ping", func(c *gin.Context) {
+	api.router.GET("/ping", func(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	router.Run(":" + port)
+	api.router.Run(":" + port)
 }
 
 func loadEnv() {

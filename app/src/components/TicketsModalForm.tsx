@@ -4,7 +4,6 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
   Modal,
   ModalBody,
@@ -13,9 +12,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Stack,
   Select,
-  Text,
+  Stack,
   Textarea,
   UseDisclosureProps,
   VStack,
@@ -30,6 +28,10 @@ function TicketsModalForm({
   onClose,
   blockScrollOnMount,
 }: TicketsModalFormProps) {
+  function onSubmit() {
+    onClose!();
+  }
+
   return (
     <>
       <Modal
@@ -81,12 +83,7 @@ function TicketsModalForm({
                   </Select>
                 </FormControl>
                 <FormControl>
-                  <FormLabel>
-                    Due Date
-                    <Text as="span" color="red">
-                      !
-                    </Text>
-                  </FormLabel>
+                  <FormLabel>Due Date</FormLabel>
                   <Input type="date" />
                 </FormControl>
               </VStack>
@@ -94,8 +91,10 @@ function TicketsModalForm({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost">cancel</Button>
-            <Button mr={3} onClick={onClose}>
+            <Button variant="ghost" onClick={onClose}>
+              cancel
+            </Button>
+            <Button mr={3} onClick={onSubmit}>
               Create Ticket
             </Button>
           </ModalFooter>

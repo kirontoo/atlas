@@ -51,4 +51,24 @@ const OwnerUser: User = {
   updatedAt: faker.date.recent().toISOString(),
 };
 
-export { AdminUser, MemberUser, OwnerUser };
+const Users: User[] = new Array(8).map(() => {
+  let firstName = faker.name.firstName();
+  let lastName = faker.name.lastName();
+  return {
+    id: faker.database.mongodbObjectId(),
+    firstName,
+    lastName,
+    username: faker.internet.userName(),
+    email: faker.internet.email(firstName, lastName),
+    role: Role.Member,
+    avatar: {
+      src: faker.internet.avatar(),
+      width: 640,
+      height: 480,
+    },
+    createdAt: faker.date.past().toISOString(),
+    updatedAt: faker.date.recent().toISOString(),
+  };
+});
+
+export { AdminUser, MemberUser, OwnerUser, Users };

@@ -4,6 +4,11 @@ enum Role {
   Owner,
 }
 
+enum RepoType {
+  Github = 'Github',
+  Gitlab = 'Gitlab',
+}
+
 type UUID = string;
 
 interface User {
@@ -28,7 +33,6 @@ interface Ticket {
   name: string;
   assignedUsers: UUID[]; // user ids
   description: string;
-  projectId: string;
   dueDate: string | null;
   createdBy: UUID;
   createdAt: string;
@@ -53,7 +57,13 @@ interface Project {
   createdAt: string;
   updatedAt: string;
   teamMembers: UUID[]; // user ids
+  repo: Repo;
 }
 
-export type { Organization, Project, Ticket, User, UUID };
-export { Role };
+interface Repo {
+  type: RepoType;
+  src: string;
+}
+
+export type { Organization, Project, Repo, Ticket, User, UUID };
+export { RepoType, Role };

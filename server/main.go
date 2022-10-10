@@ -68,6 +68,7 @@ func main() {
 	api.router.Use(CORSMiddleware())
 
 	api.router.POST("/api/tickets", api.CreateTicket)
+	api.router.GET("/api/tickets/:id", api.GetTicketByID)
 
 	api.router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -134,6 +135,22 @@ func (s *api) CreateTicket(c *gin.Context) {
 	result, err := s.tickets.Insert(ctx, ticket)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "order was not created"})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *api) GetTicketByID(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	id := c.Params.ByName("id")
+
+	result, err := s.tickets.Get(ctx, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ticket does not exist"})
 		fmt.Println(err)
 		return
 	}

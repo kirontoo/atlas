@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -43,20 +45,56 @@ type api struct {
 	tickets *models.TicketModel
 }
 
+type config struct {
+	port       string
+	mongodbUri string
+}
+
+func (c *config) LoadVariables() {
+	defaultPort := "8000"
+	defaultUri := "mongodb://mongodb0.example.com:27017"
+
+	envPort, ok := os.LookupEnv("ATLAS_PORT")
+	if ok {
+		defaultPort = envPort
+	}
+	envUri, ok := os.LookupEnv("ATLAS_MONGODB_URI")
+	if ok {
+		defaultUri = envUri
+	}
+
+	port := flag.String("port", defaultPort, "HTTP network address")
+	uri := flag.String("uri", defaultUri, "Mongo db uri address. dsn should match format: username:password@protocol(address)/dbname?param=value")
+
+	flag.Parse()
+
+	c.port = *port
+	c.mongodbUri = *uri
+}
+
+func (c *config) LoadEnv(path string) error {
+	err := godotenv.Load(path)
+	if err != nil {
+		return errors.New("Error loading .env file")
+	}
+
+	return nil
+}
+
 func main() {
-	loadEnv()
+	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
+	currentDir, _ := os.Getwd()
+	rootPath := projectName.Find([]byte(currentDir))
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	var env config
+	err := env.LoadEnv(string(rootPath) + `/.env`)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	uri := os.Getenv("MONGODB_URI")
-	if uri == "" {
-		log.Fatal("You must set your 'MONGODB_URI' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
-	}
+	env.LoadVariables()
 
-	db = getMongoClient(uri)
+	db = getMongoClient(env.mongodbUri)
 
 	gin.ForceConsoleColor()
 	api := &api{
@@ -76,21 +114,9 @@ func main() {
 		})
 	})
 
-	err := api.router.Run(":" + port)
+	err = api.router.Run(":" + env.port)
 	if err != nil {
 		log.Fatal(err)
-	}
-}
-
-func loadEnv() {
-	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
-	currentDir, _ := os.Getwd()
-	rootPath := projectName.Find([]byte(currentDir))
-
-	err := godotenv.Load(string(rootPath) + `/.env`)
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
 	}
 }
 

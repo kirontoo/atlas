@@ -107,6 +107,7 @@ func main() {
 	api.router.POST("/api/tickets", api.CreateTicket)
 	api.router.GET("/api/tickets/:id", api.GetTicketByID)
 	api.router.POST("/api/tickets/:id", api.UpdateTicket)
+	api.router.DELETE("/api/tickets/:id", api.DeleteTicket)
 
 	api.router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -170,7 +171,7 @@ func (s *api) GetTicketByID(c *gin.Context) {
 	id := c.Params.ByName("id")
 
 	result, err := s.tickets.Get(ctx, id)
-	if err != nil {
+	if errors.Is(err, models.ErrNoRecord) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ticket does not exist"})
 		fmt.Println(err)
 		return
@@ -200,6 +201,19 @@ func (s *api) UpdateTicket(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+func (s *api) DeleteTicket(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	_, err := s.tickets.Delete(ctx, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ""})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Deleted %s", id)})
 }
 
 func getCollection(collectionName string, db *mongo.Client) (collection *mongo.Collection) {

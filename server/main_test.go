@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 	"testing"
@@ -10,11 +9,8 @@ import (
 func TestLoadEnv(t *testing.T) {
 	t.Run("Should load environment variables", func(t *testing.T) {
 		var c config
-		projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
-		currentDir, _ := os.Getwd()
-		rootPath := projectName.Find([]byte(currentDir))
-		fmt.Print(string(rootPath))
-		err := c.LoadEnv(string(rootPath) + `/.env`)
+		rootPath := getRootPath(nil)
+		err := c.LoadEnv(rootPath + `/.env`)
 		if err != nil {
 			t.Error("Could not load from environment file")
 		}
@@ -32,4 +28,15 @@ func TestLoadEnv(t *testing.T) {
 			t.Error("Could not load 'PORT' environmental variable")
 		}
 	})
+}
+
+func getRootPath(dir *string) string {
+	projectName := regexp.MustCompile(`^(.*server)`)
+	if dir != nil {
+		projectName = regexp.MustCompile(`^(.*` + *dir + `)`)
+	}
+	currentDir, _ := os.Getwd()
+	rootPath := projectName.Find([]byte(currentDir))
+	return string(rootPath)
+
 }

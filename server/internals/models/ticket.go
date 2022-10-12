@@ -2,7 +2,7 @@ package models
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,15 +11,15 @@ import (
 )
 
 type Ticket struct {
-	ID          primitive.ObjectID   `bson:"_id,omitempty" json:"_id"`
-	Tags        []string             `bson:"tag,omitemptys" json:"tags"`
-	Title       string               `bson:"title,omitempty" json:"title"`
-	Assigned    []primitive.ObjectID `bson:"assigned,omitempty" json:"assigned"`
-	Description string               `bson:"description,omitempty" json:"description"`
-	Deadline    *primitive.DateTime  `bson:"deadline,omitempty" json:"deadline"`
-	CreatedBy   *primitive.ObjectID  `bson:"created_by,omitempty" json:"created_by"`
-	CreatedAt   primitive.DateTime   `bson:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt   primitive.DateTime   `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
+	ID          primitive.ObjectID    `bson:"_id,omitempty" json:"_id"`
+	Tags        *[]string             `bson:"tag,omitempty" json:"tags"`
+	Title       string                `bson:"title,omitempty" json:"title"`
+	Assigned    *[]primitive.ObjectID `bson:"assigned,omitempty" json:"assigned"`
+	Description string                `bson:"description,omitempty" json:"description"`
+	Deadline    *primitive.DateTime   `bson:"deadline,omitempty" json:"deadline"`
+	CreatedBy   *primitive.ObjectID   `bson:"created_by,omitempty" json:"created_by"`
+	CreatedAt   primitive.DateTime    `bson:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt   primitive.DateTime    `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type TicketModel struct {
@@ -45,7 +45,7 @@ func (m *TicketModel) Insert(ctx context.Context, t *Ticket) (*mongo.InsertOneRe
 func (m *TicketModel) Get(ctx context.Context, id string) (*Ticket, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		fmt.Printf("oid %v, id %v", oid, id)
+		log.Printf("oid %v, id %v", oid, id)
 		return nil, err
 	}
 	var result *Ticket
@@ -53,10 +53,10 @@ func (m *TicketModel) Get(ctx context.Context, id string) (*Ticket, error) {
 	err = m.Collection.FindOne(ctx, bson.D{{"_id", oid}}).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, err
+			return nil, ErrNoRecord
 		}
 	}
-	fmt.Printf("found document %+v", result)
+	log.Printf("found document %+v", result)
 	return result, nil
 }
 
@@ -80,6 +80,20 @@ func (m *TicketModel) Update(ctx context.Context, id string, t Ticket) (int64, e
 		return 0, err
 	}
 
-	fmt.Println("matched and replaced an existing document")
+	log.Println("matched and replaced an existing document")
 	return result.MatchedCount, nil
+}
+
+func (m *TicketModel) Delete(ctx context.Context, id string) (int64, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := m.Collection.DeleteOne(context.TODO(), bson.D{{"_id", oid}}, nil)
+	if err != nil {
+		log.Print(err)
+		return 0, err
+	}
+	return res.DeletedCount, nil
 }

@@ -29,6 +29,11 @@ type TicketModel struct {
 
 // Create a new ticket
 func (m *TicketModel) Insert(ctx context.Context, t *Ticket) (*mongo.InsertOneResult, error) {
+	t.ID = primitive.NewObjectID()
+	t.CreatedBy = nil
+	t.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	t.UpdatedAt = t.CreatedAt
+
 	result, err := m.Collection.InsertOne(ctx, t)
 	if err != nil {
 		return nil, err

@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kirontoo/atlas/server/internals/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -153,11 +152,6 @@ func (s *api) CreateTicket(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-
-	ticket.ID = primitive.NewObjectID()
-	ticket.CreatedBy = nil
-	ticket.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
-	ticket.UpdatedAt = ticket.CreatedAt
 
 	result, err := s.tickets.Insert(ctx, ticket)
 	if err != nil {

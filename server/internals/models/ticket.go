@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -10,13 +11,13 @@ import (
 )
 
 type Ticket struct {
-	ID          primitive.ObjectID   `bson:"_id" json:"_id"`
-	Tags        []string             `bson:"tags" json:"tags"`
-	Title       string               `bson:"title" json:"title"`
-	Assigned    []primitive.ObjectID `bson:"assigned" json:"assigned"`
-	Description string               `bson:"description" json:"description"`
-	Deadline    primitive.DateTime   `bson:"deadline" json:"deadline"`
-	CreatedBy   *primitive.ObjectID  `bson:"created_by" json:"created_by"`
+	ID          primitive.ObjectID   `bson:"_id,omitempty" json:"_id"`
+	Tags        []string             `bson:"tag,omitemptys" json:"tags"`
+	Title       string               `bson:"title,omitempty" json:"title"`
+	Assigned    []primitive.ObjectID `bson:"assigned,omitempty" json:"assigned"`
+	Description string               `bson:"description,omitempty" json:"description"`
+	Deadline    primitive.DateTime   `bson:"deadline,omitempty" json:"deadline"`
+	CreatedBy   *primitive.ObjectID  `bson:"created_by,omitempty" json:"created_by"`
 	CreatedAt   primitive.DateTime   `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt   primitive.DateTime   `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
@@ -52,4 +53,28 @@ func (m *TicketModel) Get(ctx context.Context, id string) (*Ticket, error) {
 	}
 	fmt.Printf("found document %+v", result)
 	return result, nil
+}
+
+func (m *TicketModel) Update(ctx context.Context, id string, t Ticket) (int64, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, err
+	}
+	filter := bson.D{{"_id", oid}}
+	t.ID = oid
+	t.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+
+	doc, err := toBsonDocument(t)
+	if err != nil {
+		return 0, err
+	}
+	update := bson.D{{"$set", doc}}
+
+	result, err := m.Collection.UpdateOne(ctx, filter, update, nil)
+	if err != nil || result.MatchedCount == 0 {
+		return 0, err
+	}
+
+	fmt.Println("matched and replaced an existing document")
+	return result.MatchedCount, nil
 }

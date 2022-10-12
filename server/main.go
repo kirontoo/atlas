@@ -107,6 +107,7 @@ func main() {
 
 	api.router.POST("/api/tickets", api.CreateTicket)
 	api.router.GET("/api/tickets/:id", api.GetTicketByID)
+	api.router.POST("/api/tickets/:id", api.UpdateTicket)
 
 	api.router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -177,6 +178,29 @@ func (s *api) GetTicketByID(c *gin.Context) {
 	result, err := s.tickets.Get(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ticket does not exist"})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *api) UpdateTicket(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var t models.Ticket
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	if err := c.BindJSON(&t); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	result, err := s.tickets.Update(ctx, id, t)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}

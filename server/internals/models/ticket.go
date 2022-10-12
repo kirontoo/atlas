@@ -16,7 +16,7 @@ type Ticket struct {
 	Title       string               `bson:"title,omitempty" json:"title"`
 	Assigned    []primitive.ObjectID `bson:"assigned,omitempty" json:"assigned"`
 	Description string               `bson:"description,omitempty" json:"description"`
-	Deadline    primitive.DateTime   `bson:"deadline,omitempty" json:"deadline"`
+	Deadline    *primitive.DateTime  `bson:"deadline,omitempty" json:"deadline"`
 	CreatedBy   *primitive.ObjectID  `bson:"created_by,omitempty" json:"created_by"`
 	CreatedAt   primitive.DateTime   `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt   primitive.DateTime   `bson:"updated_at,omitempty" json:"updated_at,omitempty"`

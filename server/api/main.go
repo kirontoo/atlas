@@ -8,13 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kirontoo/atlas/server/internals/models"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const projectDirName = "server"
 const database = "atlas"
-
-var db *mongo.Client
 
 type api struct {
 	router  *gin.Engine
@@ -34,7 +31,7 @@ func main() {
 
 	env.LoadVariables()
 
-	db = getMongoClient(env.mongodbUri)
+	db := getMongoClient(env.mongodbUri)
 
 	gin.ForceConsoleColor()
 	api := &api{

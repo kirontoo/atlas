@@ -1,14 +1,11 @@
 import {
   Avatar,
-  AvatarGroup,
   Button,
   FormControl,
-  FormErrorMessage,
   FormHelperText,
   FormLabel,
   Highlight,
   HStack,
-  IconButton,
   Input,
   Menu,
   MenuButton,
@@ -22,7 +19,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Stack,
   Text,
   Textarea,
@@ -96,7 +92,7 @@ function ProjectsModalForm({
                         isFocusable
                         _hover={{ background: 'inherit' }}
                       >
-                        <Input type="text" placeholder="Search for user..." focus />
+                        <Input type="text" placeholder="Search for user..." />
                       </MenuItem>
                       <MenuDivider />
                       <MenuItem>

@@ -7,7 +7,6 @@ import {
   Button,
   Flex,
   FlexProps,
-  Hide,
   HStack,
   IconButton,
   Menu,

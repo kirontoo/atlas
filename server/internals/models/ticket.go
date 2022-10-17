@@ -23,7 +23,7 @@ type Ticket struct {
 }
 
 type TicketModel struct {
-	DB         *mongo.Client
+	db         *mongo.Client
 	Collection *mongo.Collection
 }
 

@@ -8,6 +8,10 @@ const (
 	Member
 )
 
+func (r Role) Values() []Role {
+	return []Role{Admin, Owner, Member}
+}
+
 func (r Role) String() string {
 	roles := [...]string{"ADMIN", "MEMBER", "OWNER"}
 	if r < Admin || r > Member {

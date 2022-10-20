@@ -20,7 +20,7 @@ type User struct {
 	Role      Role               `bson:"role,omitempty" json:"role"`
 	Projects  []Project          `bson:"projects,omitempty,inline" json:"projects"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type UserModel struct {
@@ -29,6 +29,7 @@ type UserModel struct {
 }
 
 func (m *UserModel) jsonSchema() bson.M {
+	var role Role
 	return bson.M{
 		"bsonType": "object",
 		"required": []string{"username", "email", "password"},
@@ -74,6 +75,10 @@ func (m *UserModel) jsonSchema() bson.M {
 					},
 				},
 			},
+			"roles": bson.M{
+				"enum":        role.Values(),
+				"description": "the role permissions a user can have",
+			},
 			"created_at": bson.M{
 				"bsonType":    "timestamp",
 				"description": "the date and time of when this user was created",
@@ -105,7 +110,7 @@ func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
 
 	err := db.CreateCollection(context.TODO(), collectionName, opts)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return nil, err
 	}
 

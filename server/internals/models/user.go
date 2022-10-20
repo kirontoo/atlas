@@ -3,7 +3,9 @@ package models
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"runtime/debug"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -98,21 +100,31 @@ func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
 		return nil, errors.New("database does not exist")
 	}
 
-	userModel := &UserModel{
-		db:         client,
-		Collection: db.Collection(collectionName),
-	}
+	userModel := &UserModel{}
 
-	validator := bson.M{
-		"$jsonSchema": userModel.jsonSchema(),
-	}
-	opts := options.CreateCollection().SetValidator(validator)
-
-	err := db.CreateCollection(context.TODO(), collectionName, opts)
+	collectionNames, err := db.ListCollectionNames(context.TODO(), bson.D{})
 	if err != nil {
-		log.Print(err)
+		log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
 		return nil, err
 	}
+
+	if !isStringExists(collectionNames, collectionName) {
+		validator := bson.M{
+			"$jsonSchema": userModel.jsonSchema(),
+		}
+
+		opts := options.CreateCollection().SetValidator(validator)
+
+		err := db.CreateCollection(context.TODO(), "users", opts)
+		if err != nil {
+			log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
+			return nil, err
+		}
+
+	}
+
+	userModel.db = client
+	userModel.Collection = db.Collection(collectionName)
 
 	return userModel, nil
 }

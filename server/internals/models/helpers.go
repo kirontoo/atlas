@@ -12,3 +12,12 @@ func toBsonDocument(s interface{}) (*bson.D, error) {
 	err = bson.Unmarshal(data, &doc)
 	return doc, nil
 }
+
+func isStringExists(list []string, target string) bool {
+	for _, s := range list {
+		if s == target {
+			return true
+		}
+	}
+	return false
+}

@@ -102,10 +102,12 @@ function Aside() {
       <Box
         h="full"
         w="full"
-        bgGradient={useColorModeValue(
-          'linear(to-l, background, primary.400)',
-          'linear(to-l, background, primary.400)',
+        bg={useColorModeValue(
+          'radial-gradient(circle at top left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%), radial-gradient(circle at top right ,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom right,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%),radial-gradient(circle, transparent 25%, background  26%),linear-gradient(45deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%), linear-gradient(135deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%)',
+          'radial-gradient(circle at top left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%), radial-gradient(circle at top right ,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom right,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%),radial-gradient(circle, transparent 25%, background  26%),linear-gradient(45deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%), linear-gradient(135deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%)',
         )}
+        bgSize="10em 10em"
+        opacity={1}
         borderBottomLeftRadius="3xl"
       ></Box>
     </Container>

@@ -17,7 +17,7 @@ type config struct {
 func (c *config) LoadVariables() {
 	defaultPort := "8000"
 	defaultUri := "mongodb://mongodb0.example.com:27017"
-	defaultSecretKey := "ATLAS_SECRET_SHHHH"
+	defaultSecretKey := "ATLAS_SECRET_KEY"
 
 	envPort, ok := os.LookupEnv("ATLAS_PORT")
 	if ok {
@@ -34,7 +34,7 @@ func (c *config) LoadVariables() {
 
 	port := flag.String("port", defaultPort, "HTTP network address")
 	uri := flag.String("uri", defaultUri, "Mongo db uri address. dsn should match format: username:password@protocol(address)/dbname?param=value")
-	secretKey := flag.String("uri", defaultSecretKey, "JWT Secret Key")
+	secretKey := flag.String("secret", defaultSecretKey, "JWT Secret Key")
 
 	flag.Parse()
 

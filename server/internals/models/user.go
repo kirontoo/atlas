@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,8 +20,8 @@ type User struct {
 	Email     string             `bson:"email,omitempty" json:"email"`
 	Password  string             `bson:"password,omitempty" json:"password"`
 	Avatar    *string            `bson:"avatar,omitempty" json:"avatar"`
-	Role      Role               `bson:"role,omitempty" json:"role"`
-	Projects  []Project          `bson:"projects,omitempty,inline" json:"projects"`
+	Role      *Role              `bson:"role,omitempty" json:"role"`
+	Projects  []Project          `bson:"projects,omitempty" json:"projects"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
@@ -81,14 +82,6 @@ func (m *UserModel) jsonSchema() bson.M {
 				"enum":        role.Values(),
 				"description": "the role permissions a user can have",
 			},
-			"created_at": bson.M{
-				"bsonType":    "timestamp",
-				"description": "the date and time of when this user was created",
-			},
-			"updated_at": bson.M{
-				"bsonType":    "timestamp",
-				"description": "the date and time of when this user was created",
-			},
 		},
 	}
 }
@@ -133,10 +126,43 @@ func (m *UserModel) GetById(id string) (*User, error) {
 	return nil, nil
 }
 
-func (m *UserModel) Insert(data *User) (*User, error) {
-	return nil, nil
+func (m *UserModel) FindOne(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*User, error) {
+	var result *User
+	err := m.Collection.FindOne(
+		ctx,
+		filter,
+		opts,
+	).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, ErrNoRecord
+		}
+	}
+
+	return result, nil
+}
+
+func (m *UserModel) Insert(ctx context.Context, u *User) (*User, error) {
+	if u == nil {
+		return nil, errors.New("No user data")
+	}
+
+	u.ID = primitive.NewObjectID()
+	u.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	u.UpdatedAt = u.CreatedAt
+
+	_, err := m.Collection.InsertOne(ctx, *u)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
 }
 
 func (m *UserModel) Update(data *User) (*User, error) {
 	return nil, nil
+}
+
+func (m *UserModel) Delete(ctx context.Context, id string) (int64, error) {
+	return 0, nil
 }

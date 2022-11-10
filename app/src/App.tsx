@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Dashboard from './pages/Dashboard';
+import Projects from './pages/Dashboard/Projects';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
@@ -23,7 +24,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />}>
               <Route path="" element={<div> hello home</div>} />
-              <Route path="projects" element={<div>projects</div>} />
+              <Route path="projects" element={<Projects />} />
               <Route path="tickets" element={<div>tickets</div>} />
               <Route path="settings" element={<div>settings</div>} />
             </Route>

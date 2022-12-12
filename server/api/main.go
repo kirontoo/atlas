@@ -16,6 +16,7 @@ const database = "atlas"
 type api struct {
 	router  *gin.Engine
 	tickets *models.TicketModel
+	users   *models.UserModel
 }
 
 func main() {
@@ -34,9 +35,12 @@ func main() {
 	db := getMongoClient(env.mongodbUri)
 
 	gin.ForceConsoleColor()
+
+	userModel, err := models.NewUserModel(db, database)
 	api := &api{
 		router:  gin.New(),
 		tickets: &models.TicketModel{DB: db, Collection: getCollection(db, "tickets")},
+		users:   userModel,
 	}
 
 	// set middlewares
@@ -46,6 +50,7 @@ func main() {
 	api.router.GET("/api/tickets/:id", api.GetTicketByID)
 	api.router.POST("/api/tickets/:id", api.UpdateTicket)
 	api.router.DELETE("/api/tickets/:id", api.DeleteTicket)
+	api.router.POST("/api/users/signup", api.UserSignup)
 
 	api.router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

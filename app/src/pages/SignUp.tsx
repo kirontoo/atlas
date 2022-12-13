@@ -4,6 +4,7 @@ import {
   Button,
   Container,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   HStack,
@@ -15,12 +16,111 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { FirebaseError } from '@firebase/util';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import React from 'react';
+import { useReducer, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
 
 function SignUpCard() {
+  interface ISignupUser {
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    username: string;
+  }
+
+  const initState: ISignupUser = {
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    username: '',
+  };
+
+  const InputActions = {
+    email: 'email',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    password: 'password',
+    username: 'username',
+    reset: 'reset',
+  };
+
   const [showPassword, setShowPassword] = useState(false);
+  const [state, dispatch] = useReducer(inputReducer, initState);
+  const [errors, setErrors] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    username: '',
+  });
+  const navigate = useNavigate();
+
+  function inputReducer(state: ISignupUser, action: { type: string; payload: string }) {
+    switch (action.type) {
+      case InputActions.firstName:
+        return { ...state, firstName: action.payload };
+      case InputActions.lastName:
+        return { ...state, lastName: action.payload };
+      case InputActions.username:
+        return { ...state, username: action.payload };
+      case InputActions.email:
+        return { ...state, email: action.payload };
+      case InputActions.password:
+        return { ...state, password: action.payload };
+      case InputActions.reset:
+        return initState;
+      default:
+        return state;
+    }
+  }
+
+  function onTextChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { id: type, value: payload } = e.target;
+    dispatch({ type, payload });
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        state.email,
+        state.password,
+      );
+      const { user } = userCredential;
+      console.log(user);
+      dispatch({ type: InputActions.reset, payload: '' });
+      navigate('/dashboard/');
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        switch (errorCode) {
+          case 'auth/invalid-email':
+            setErrors((state) => ({ ...state, email: 'invalid email' }));
+            break;
+          case 'auth/email-already-in-use':
+            setErrors((state) => ({ ...state, email: errorMessage }));
+            break;
+          case 'auth/weak-password':
+            setErrors((state) => ({ ...state, password: errorMessage }));
+            break;
+          default:
+            console.log(errorMessage);
+            break;
+        }
+        console.log(errorMessage);
+      }
+    }
+  }
+
   return (
     <Stack spacing={8} w={'full'} mx={'auto'} maxW={'lg'} py={12} px={{ base: 0, md: 6 }}>
       <Stack align={'left'}>
@@ -36,30 +136,65 @@ function SignUpCard() {
         bg={useColorModeValue('gray.50', 'gray.800')}
         boxShadow={'lg'}
         p={8}
+        as="form"
+        onSubmit={onSubmit}
       >
         <Stack spacing={4}>
           <HStack>
             <Box>
-              <FormControl id="firstName" isRequired>
+              <FormControl id={InputActions.firstName}>
                 <FormLabel>First Name</FormLabel>
-                <Input type="text" />
+                <Input
+                  type="text"
+                  value={state.firstName}
+                  onChange={onTextChange}
+                  isInvalid={errors.firstName != ''}
+                />
+                <FormErrorMessage>{errors.firstName}</FormErrorMessage>
               </FormControl>
             </Box>
             <Box>
-              <FormControl id="lastName">
+              <FormControl id={InputActions.lastName}>
                 <FormLabel>Last Name</FormLabel>
-                <Input type="text" />
+                <Input
+                  type="text"
+                  value={state.lastName}
+                  onChange={onTextChange}
+                  isInvalid={errors.lastName != ''}
+                />
+                <FormErrorMessage>{errors.lastName}</FormErrorMessage>
               </FormControl>
             </Box>
           </HStack>
-          <FormControl id="email" isRequired>
-            <FormLabel>Email address</FormLabel>
-            <Input type="email" />
+          <FormControl id={InputActions.username} isRequired>
+            <FormLabel>Username</FormLabel>
+            <Input
+              type="text"
+              value={state.username}
+              onChange={onTextChange}
+              isInvalid={errors.username != ''}
+            />
+            <FormErrorMessage>{errors.username}</FormErrorMessage>
           </FormControl>
-          <FormControl id="password" isRequired>
+          <FormControl id={InputActions.email} isRequired>
+            <FormLabel>Email address</FormLabel>
+            <Input
+              type="email"
+              value={state.email}
+              onChange={onTextChange}
+              isInvalid={errors.email != ''}
+            />
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
+          </FormControl>
+          <FormControl id={InputActions.password} isRequired>
             <FormLabel>Password</FormLabel>
             <InputGroup>
-              <Input type={showPassword ? 'text' : 'password'} />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={state.password}
+                onChange={onTextChange}
+                isInvalid={errors.password != ''}
+              />
               <InputRightElement h={'full'}>
                 <Button
                   variant={'ghost'}
@@ -69,9 +204,10 @@ function SignUpCard() {
                 </Button>
               </InputRightElement>
             </InputGroup>
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
           </FormControl>
           <Stack spacing={10} pt={2}>
-            <Button loadingText="Submitting" size="lg">
+            <Button loadingText="Submitting" size="lg" type="submit">
               Sign up
             </Button>
           </Stack>

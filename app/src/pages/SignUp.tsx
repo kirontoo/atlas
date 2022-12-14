@@ -20,10 +20,12 @@ import { FirebaseError } from '@firebase/util';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React from 'react';
 import { useReducer, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
+import { UserActions } from '../store/features/user/userSlice';
 
 function SignUpCard() {
   interface ISignupUser {
@@ -51,8 +53,9 @@ function SignUpCard() {
     reset: 'reset',
   };
 
+  const storeDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
-  const [state, dispatch] = useReducer(inputReducer, initState);
+  const [state, inputDispatch] = useReducer(inputReducer, initState);
   const [errors, setErrors] = useState({
     email: '',
     firstName: '',
@@ -83,7 +86,7 @@ function SignUpCard() {
 
   function onTextChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { id: type, value: payload } = e.target;
-    dispatch({ type, payload });
+    inputDispatch({ type, payload });
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -104,7 +107,8 @@ function SignUpCard() {
         state.password,
       );
       const { user } = userCredential;
-      dispatch({ type: InputActions.reset, payload: '' });
+      storeDispatch({ type: UserActions.LOGIN, payload: user });
+      inputDispatch({ type: InputActions.reset, payload: '' });
       navigate('/dashboard/');
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {

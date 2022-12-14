@@ -5,6 +5,7 @@ import {
   Container,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -13,37 +14,65 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { FirebaseError } from '@firebase/util';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ChangeEvent, useState } from 'react';
+import { FormEvent } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
+import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
+import { UserActions } from '../store/features/user/userSlice';
 
 function LoginCard() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const storeDispatch = useDispatch();
 
   function onInputChange(e: ChangeEvent<HTMLInputElement>) {
-    let val = e.target.value;
-    if (e.type == 'email') {
-      setEmail(() => val);
+    const { id, value } = e.target;
+    if (id == 'email') {
+      setEmail(() => value);
     } else {
-      setPassword(() => val);
+      setPassword(() => value);
+    }
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      setError(null);
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      storeDispatch({ type: UserActions.LOGIN, payload: user });
+      navigate('/dashboard');
+    } catch (e: unknown) {
+      if (e instanceof FirebaseError) {
+        const { code } = e;
+        switch (code) {
+          case 'auth/wrong-password':
+          case 'auth/user-not-found':
+            setError('wrong email or password');
+            break;
+          default:
+            setError('something went wrong, try again later');
+            break;
+        }
+      }
     }
   }
 
   return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-    >
+    <Flex minH={'100vh'} align={'center'} justify={'center'}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={{ base: 'center', md: 'start' }}>
           <Heading fontSize={'4xl'} color={'primary.400'}>
             Login to your account
           </Heading>
-          <Text fontSize={'lg'} color={'gray.600'}>
-            to enjoy all of our cool <Link color={'blue.400'}>features</Link> ✌️
+          <Text fontSize={'lg'} color={useColorModeValue('gray.400', 'white')}>
+            to enjoy all of our cool features ✌️
           </Text>
         </Stack>
         <Box
@@ -51,27 +80,28 @@ function LoginCard() {
           bg={useColorModeValue('white', 'gray.700')}
           boxShadow={'lg'}
           p={8}
+          as="form"
+          onSubmit={onSubmit}
         >
           <Stack spacing={4}>
-            <FormControl id="email">
+            <FormControl id="email" isInvalid={error !== null} isRequired>
               <FormLabel>Email address</FormLabel>
               <Input type="email" value={email} onChange={onInputChange} />
             </FormControl>
-            <FormControl id="password">
+            <FormControl id="password" isInvalid={error !== null} isRequired>
               <FormLabel>Password</FormLabel>
               <Input type="password" value={password} onChange={onInputChange} />
+              {error != '' && <FormErrorMessage>{error !== null}</FormErrorMessage>}
             </FormControl>
-            <Stack spacing={10}>
-              <Stack
-                direction={{ base: 'column', sm: 'row' }}
-                align={'start'}
-                justify={'space-between'}
-              >
-                <Checkbox>Remember me</Checkbox>
-                <Link color={'blue.400'}>Forgot password?</Link>
-              </Stack>
-              <Button>Login</Button>
+            <Stack
+              direction={{ base: 'column', sm: 'row' }}
+              align={'start'}
+              justify={'space-between'}
+            >
+              <Checkbox>Remember me</Checkbox>
+              <Link color={'blue.400'}>Forgot password?</Link>
             </Stack>
+            <Button type="submit">Login</Button>
           </Stack>
         </Box>
       </Stack>
@@ -91,10 +121,12 @@ function Aside() {
       <Box
         h="full"
         w="full"
-        bgGradient={useColorModeValue(
-          'linear(to-r, background, primary.400)',
-          'linear(to-r, background, primary.400)',
+        bg={useColorModeValue(
+          'radial-gradient(circle at top left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%), radial-gradient(circle at top right ,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom right,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%),radial-gradient(circle, transparent 25%, background  26%),linear-gradient(45deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%), linear-gradient(135deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%)',
+          'radial-gradient(circle at top left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom left,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%), radial-gradient(circle at top right ,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%) , radial-gradient(circle at bottom right,transparent 9%, #9F7AEA 10% ,#9F7AEA 15% , transparent 16%),radial-gradient(circle, transparent 25%, background  26%),linear-gradient(45deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%), linear-gradient(135deg, transparent 46%, #9F7AEA 47%, #9F7AEA 52%, transparent 53%)',
         )}
+        bgSize="10em 10em"
+        opacity={1}
         borderBottomRightRadius="3xl"
       ></Box>
     </Container>

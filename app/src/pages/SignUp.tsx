@@ -89,13 +89,21 @@ function SignUpCard() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
+      // clear old errors before attempting to sign up user
+      setErrors({
+        email: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+        username: '',
+      });
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         state.email,
         state.password,
       );
       const { user } = userCredential;
-      console.log(user);
       dispatch({ type: InputActions.reset, payload: '' });
       navigate('/dashboard/');
     } catch (error: unknown) {
@@ -107,17 +115,19 @@ function SignUpCard() {
             setErrors((state) => ({ ...state, email: 'invalid email' }));
             break;
           case 'auth/email-already-in-use':
-            setErrors((state) => ({ ...state, email: errorMessage }));
+            setErrors((state) => ({ ...state, email: 'email is already in use' }));
             break;
           case 'auth/weak-password':
             setErrors((state) => ({ ...state, password: errorMessage }));
             break;
           default:
+            // TODO: handle this with a error message for the user
             console.log(errorMessage);
             break;
         }
-        console.log(errorMessage);
       }
+
+      // TODO: add a default error message (catch all)
     }
   }
 
@@ -142,58 +152,51 @@ function SignUpCard() {
         <Stack spacing={4}>
           <HStack>
             <Box>
-              <FormControl id={InputActions.firstName}>
+              <FormControl id={InputActions.firstName} isInvalid={errors.firstName != ''}>
                 <FormLabel>First Name</FormLabel>
-                <Input
-                  type="text"
-                  value={state.firstName}
-                  onChange={onTextChange}
-                  isInvalid={errors.firstName != ''}
-                />
-                <FormErrorMessage>{errors.firstName}</FormErrorMessage>
+                <Input type="text" value={state.firstName} onChange={onTextChange} />
+                {errors.firstName != '' && (
+                  <FormErrorMessage>{errors.firstName}</FormErrorMessage>
+                )}
               </FormControl>
             </Box>
             <Box>
-              <FormControl id={InputActions.lastName}>
+              <FormControl id={InputActions.lastName} isInvalid={errors.lastName != ''}>
                 <FormLabel>Last Name</FormLabel>
-                <Input
-                  type="text"
-                  value={state.lastName}
-                  onChange={onTextChange}
-                  isInvalid={errors.lastName != ''}
-                />
-                <FormErrorMessage>{errors.lastName}</FormErrorMessage>
+                <Input type="text" value={state.lastName} onChange={onTextChange} />
+                {errors.lastName != '' && (
+                  <FormErrorMessage>{errors.lastName}</FormErrorMessage>
+                )}
               </FormControl>
             </Box>
           </HStack>
-          <FormControl id={InputActions.username} isRequired>
+          <FormControl
+            id={InputActions.username}
+            isRequired
+            isInvalid={errors.username != ''}
+          >
             <FormLabel>Username</FormLabel>
-            <Input
-              type="text"
-              value={state.username}
-              onChange={onTextChange}
-              isInvalid={errors.username != ''}
-            />
-            <FormErrorMessage>{errors.username}</FormErrorMessage>
+            <Input type="text" value={state.username} onChange={onTextChange} />
+            {errors.username != '' && (
+              <FormErrorMessage>{errors.username}</FormErrorMessage>
+            )}
           </FormControl>
-          <FormControl id={InputActions.email} isRequired>
+          <FormControl id={InputActions.email} isRequired isInvalid={errors.email != ''}>
             <FormLabel>Email address</FormLabel>
-            <Input
-              type="email"
-              value={state.email}
-              onChange={onTextChange}
-              isInvalid={errors.email != ''}
-            />
-            <FormErrorMessage>{errors.email}</FormErrorMessage>
+            <Input type="email" value={state.email} onChange={onTextChange} />
+            {errors.email != '' && <FormErrorMessage>{errors.email}</FormErrorMessage>}
           </FormControl>
-          <FormControl id={InputActions.password} isRequired>
+          <FormControl
+            id={InputActions.password}
+            isRequired
+            isInvalid={errors.password != ''}
+          >
             <FormLabel>Password</FormLabel>
             <InputGroup>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 value={state.password}
                 onChange={onTextChange}
-                isInvalid={errors.password != ''}
               />
               <InputRightElement h={'full'}>
                 <Button
@@ -204,7 +207,9 @@ function SignUpCard() {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <FormErrorMessage>{errors.password}</FormErrorMessage>
+            {errors.password != '' && (
+              <FormErrorMessage>{errors.password}</FormErrorMessage>
+            )}
           </FormControl>
           <Stack spacing={10} pt={2}>
             <Button loadingText="Submitting" size="lg" type="submit">

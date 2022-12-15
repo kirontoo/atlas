@@ -14,6 +14,8 @@ export const TOKEN_KEY = 'user_token';
 export enum UserActions {
   LOGIN = 'user/login',
   LOGOUT = 'user/logout',
+  START_LOADING = 'user/start-loading',
+  END_LOADING = 'user/stop-loading',
 }
 
 interface IAuthState {
@@ -32,6 +34,20 @@ const userSlice = createSlice({
   name: 'user',
   initialState: initialState,
   reducers: {
+    startLoading(state: IAuthState) {
+      return {
+        type: UserActions.START_LOADING,
+        ...state,
+        loading: true,
+      };
+    },
+    endLoading(state: IAuthState) {
+      return {
+        type: UserActions.END_LOADING,
+        ...state,
+        loading: false,
+      };
+    },
     logout() {
       return {
         type: UserActions.LOGOUT,
@@ -57,7 +73,7 @@ const userSlice = createSlice({
       };
     },
 
-    login(state, action: PayloadAction<UserCredential>) {
+    login(state: IAuthState, action: PayloadAction<UserCredential>) {
       return {
         type: UserActions.LOGIN,
         loading: false,
@@ -68,5 +84,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { login, loginAsOwner, loginAsAdmin, logout } = userSlice.actions;
+export const { startLoading, endLoading, login, loginAsOwner, loginAsAdmin, logout } =
+  userSlice.actions;
 export default userSlice.reducer;

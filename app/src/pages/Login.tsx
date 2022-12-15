@@ -120,7 +120,7 @@ function LoginCard() {
             <Text align={'center'}>
               No account?{' '}
               <Link color={'primary.300'} href="/signup">
-                Sign up here.
+                Sign up
               </Link>
             </Text>
           </Stack>

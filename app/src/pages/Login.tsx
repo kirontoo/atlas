@@ -15,7 +15,12 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FirebaseError } from '@firebase/util';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  inMemoryPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { ChangeEvent, useState } from 'react';
 import { FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
@@ -26,8 +31,9 @@ import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
 
 function LoginCard() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const storeDispatch = useDispatch();
@@ -45,6 +51,10 @@ function LoginCard() {
     e.preventDefault();
     try {
       setError(null);
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : inMemoryPersistence,
+      );
       const user = await signInWithEmailAndPassword(auth, email, password);
       storeDispatch({ type: UserActions.LOGIN, payload: user });
       navigate('/dashboard');
@@ -98,7 +108,12 @@ function LoginCard() {
               align={'start'}
               justify={'space-between'}
             >
-              <Checkbox>Remember me</Checkbox>
+              <Checkbox
+                isChecked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              >
+                Remember me
+              </Checkbox>
               <Link color={'blue.400'}>Forgot password?</Link>
             </Stack>
             <Button type="submit">Login</Button>

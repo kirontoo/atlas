@@ -114,9 +114,15 @@ function LoginCard() {
               >
                 Remember me
               </Checkbox>
-              <Link color={'blue.400'}>Forgot password?</Link>
+              <Link color={'primary.300'}>Forgot password?</Link>
             </Stack>
             <Button type="submit">Login</Button>
+            <Text align={'center'}>
+              No account?{' '}
+              <Link color={'primary.300'} href="/signup">
+                Sign up here.
+              </Link>
+            </Text>
           </Stack>
         </Box>
       </Stack>

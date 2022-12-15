@@ -20,10 +20,14 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { FiBell, FiChevronDown, FiMenu, FiPlus } from 'react-icons/fi';
-import { useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 
+import { auth } from '../auth/firebase';
+import { UserActions } from '../store/features/user/userSlice';
 import DarkModeToggle from './DarkModeToggle';
 import TicketsModalForm from './TicketsModalForm';
 
@@ -35,10 +39,26 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
   const { isOpen, onOpen: onOpenModal, onClose } = useDisclosure();
   let location = useLocation();
   let [breadcrumbItems, setBreadcrumbItems] = useState<string[]>([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setBreadcrumbItems(() => location.pathname.split('/').slice(1));
   }, [location]);
+
+  async function signUserOut() {
+    dispatch({ type: UserActions.START_LOADING });
+    try {
+      await signOut(auth);
+      dispatch({ type: UserActions.LOGOUT });
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+      // TODO: handle error in a different way
+    } finally {
+      dispatch({ type: UserActions.END_LOADING });
+    }
+  }
 
   return (
     <>
@@ -131,7 +151,7 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
                 <MenuItem>Settings</MenuItem>
                 <MenuItem>Billing</MenuItem>
                 <MenuDivider />
-                <MenuItem>Sign out</MenuItem>
+                <MenuItem onClick={signUserOut}>Sign out</MenuItem>
               </MenuList>
             </Menu>
           </Flex>

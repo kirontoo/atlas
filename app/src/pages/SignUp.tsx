@@ -222,7 +222,10 @@ function SignUpCard() {
           </Stack>
           <Stack pt={6}>
             <Text align={'center'}>
-              Already a user? <Link color={'primary.300'}>Sign In</Link>
+              Already a user?{' '}
+              <Link color={'primary.300'} href="/login">
+                Sign In
+              </Link>
             </Text>
           </Stack>
           <Stack direction="row" justify="center">

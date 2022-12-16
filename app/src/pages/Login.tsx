@@ -55,8 +55,8 @@ function LoginCard() {
         auth,
         rememberMe ? browserLocalPersistence : inMemoryPersistence,
       );
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      storeDispatch({ type: UserActions.LOGIN, payload: user });
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      storeDispatch({ type: UserActions.LOGIN, payload: userCredential.user });
       navigate('/dashboard');
     } catch (e: unknown) {
       if (e instanceof FirebaseError) {

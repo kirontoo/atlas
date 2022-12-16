@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UserCredential } from 'firebase/auth';
+import { User } from 'firebase/auth';
 
 /*
  * Features:
@@ -21,7 +21,7 @@ export enum UserActions {
 interface IAuthState {
   loading: boolean;
   token: string | null;
-  user: UserCredential | null;
+  user: User | null;
 }
 
 const initialState: IAuthState = {
@@ -73,7 +73,7 @@ const userSlice = createSlice({
       };
     },
 
-    login(state: IAuthState, action: PayloadAction<UserCredential>) {
+    login(state: IAuthState, action: PayloadAction<User>) {
       return {
         type: UserActions.LOGIN,
         loading: false,

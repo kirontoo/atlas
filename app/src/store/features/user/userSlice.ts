@@ -84,6 +84,7 @@ const userSlice = createSlice({
   },
 });
 
+export const selectUser = (state: IAuthState) => state.user;
 export const { startLoading, endLoading, login, loginAsOwner, loginAsAdmin, logout } =
   userSlice.actions;
 export default userSlice.reducer;

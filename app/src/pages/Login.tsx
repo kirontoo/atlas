@@ -34,7 +34,7 @@ function LoginCard() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const storeDispatch = useDispatch();
 
@@ -50,26 +50,31 @@ function LoginCard() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     try {
-      setError(null);
+      setError('');
       await setPersistence(
         auth,
         rememberMe ? browserLocalPersistence : inMemoryPersistence,
       );
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      storeDispatch({ type: UserActions.LOGIN, payload: userCredential.user });
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      storeDispatch({ type: UserActions.LOGIN, payload: user });
       navigate('/dashboard');
     } catch (e: unknown) {
       if (e instanceof FirebaseError) {
-        const { code } = e;
+        const code = e.code;
         switch (code) {
           case 'auth/wrong-password':
           case 'auth/user-not-found':
             setError('wrong email or password');
             break;
+          case 'auth/too-many-requests':
+            setError('Too many login attempts. Reset your password or try again later.');
+            break;
           default:
             setError('something went wrong, try again later');
             break;
         }
+      } else {
+        setError('something went wrong, try again later');
       }
     }
   }
@@ -94,14 +99,14 @@ function LoginCard() {
           onSubmit={onSubmit}
         >
           <Stack spacing={4}>
-            <FormControl id="email" isInvalid={error !== null} isRequired>
+            <FormControl id="email" isInvalid={error !== ''} isRequired>
               <FormLabel>Email address</FormLabel>
               <Input type="email" value={email} onChange={onInputChange} />
             </FormControl>
-            <FormControl id="password" isInvalid={error !== null} isRequired>
+            <FormControl id="password" isInvalid={error !== ''} isRequired>
               <FormLabel>Password</FormLabel>
               <Input type="password" value={password} onChange={onInputChange} />
-              {error != '' && <FormErrorMessage>{error !== null}</FormErrorMessage>}
+              {error != '' && <FormErrorMessage>{error}</FormErrorMessage>}
             </FormControl>
             <Stack
               direction={{ base: 'column', sm: 'row' }}

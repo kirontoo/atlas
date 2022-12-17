@@ -35,6 +35,7 @@ function LoginCard() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const storeDispatch = useDispatch();
@@ -50,6 +51,7 @@ function LoginCard() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    setLoading(true);
     try {
       setError('');
       await setPersistence(
@@ -77,6 +79,8 @@ function LoginCard() {
       } else {
         setError('something went wrong, try again later');
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -122,7 +126,9 @@ function LoginCard() {
               </Checkbox>
               <Link color={'primary.300'}>Forgot password?</Link>
             </Stack>
-            <Button type="submit">Login</Button>
+            <Button type="submit" isLoading={isLoading}>
+              Login
+            </Button>
             <Text align={'center'}>
               No account?{' '}
               <Link color={'primary.300'} href={signupRoute}>

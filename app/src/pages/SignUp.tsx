@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
+import { loginRoute } from '../utils/routes';
 
 function SignUpCard() {
   interface ISignupUser {
@@ -109,7 +110,7 @@ function SignUpCard() {
       const { user } = userCredential;
       storeDispatch({ type: UserActions.LOGIN, payload: user });
       inputDispatch({ type: InputActions.reset, payload: '' });
-      navigate('/dashboard/');
+      navigate('/login');
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {
         const errorCode = error.code;
@@ -223,7 +224,7 @@ function SignUpCard() {
           <Stack pt={6}>
             <Text align={'center'}>
               Already a user?{' '}
-              <Link color={'primary.300'} href="/login">
+              <Link color={'primary.300'} href={loginRoute}>
                 Sign In
               </Link>
             </Text>

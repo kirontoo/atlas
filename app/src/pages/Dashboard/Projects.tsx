@@ -1,12 +1,8 @@
 import { Avatar, AvatarGroup, Grid, GridItem, useColorModeValue } from '@chakra-ui/react';
 import {
   Box,
-  Center,
-  Heading,
-  HStack,
+  Button,
   Icon,
-  Image,
-  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -75,7 +71,7 @@ function Projects() {
         </GridItem>
 
         <GridItem
-          colSpan={4}
+          colSpan={6}
           bg={useColorModeValue('white', 'gray.700')}
           borderRadius="lg"
           p="4"
@@ -110,7 +106,11 @@ function Projects() {
                     </AvatarGroup>
                   </Td>
                   <Td>23</Td>
-                  <Td>Edit</Td>
+                  <Td>
+                    <Button size="sm" variant="ghost">
+                      Edit
+                    </Button>
+                  </Td>
                 </Tr>
                 <Tr>
                   <Td>rxkiro</Td>
@@ -125,7 +125,11 @@ function Projects() {
                     </AvatarGroup>
                   </Td>
                   <Td>4</Td>
-                  <Td>Edit</Td>
+                  <Td>
+                    <Button size="sm" variant="ghost">
+                      Edit
+                    </Button>
+                  </Td>
                 </Tr>
                 <Tr>
                   <Td>notWoS</Td>
@@ -144,18 +148,16 @@ function Projects() {
                     </AvatarGroup>
                   </Td>
                   <Td>14</Td>
-                  <Td>Edit</Td>
+                  <Td>
+                    <Button size="sm" variant="ghost">
+                      Edit
+                    </Button>
+                  </Td>
                 </Tr>
               </Tbody>
             </Table>
           </TableContainer>
         </GridItem>
-
-        <GridItem
-          colSpan={2}
-          bg={useColorModeValue('white', 'gray.700')}
-          borderRadius="lg"
-        ></GridItem>
       </Grid>
       <ProjectsModalForm isOpen={isOpen} onClose={onClose} blockScrollOnMount={true} />
     </>

@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
+import { signupRoute } from '../utils/routes';
 
 function LoginCard() {
   const [email, setEmail] = useState<string>('');
@@ -124,7 +125,7 @@ function LoginCard() {
             <Button type="submit">Login</Button>
             <Text align={'center'}>
               No account?{' '}
-              <Link color={'primary.300'} href="/signup">
+              <Link color={'primary.300'} href={signupRoute}>
                 Sign up
               </Link>
             </Text>

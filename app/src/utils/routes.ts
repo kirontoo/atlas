@@ -1,7 +1,8 @@
 export const loginRoute = '/login';
 export const signupRoute = '/signup';
 export const dashboardRoute = '/dashboard';
-export const dashboardProjectsRoute = '/projects';
-export const dashboardTicketsRoute = '/tickets';
-export const dashboardSettingsRoute = '/settings';
+export const dashboardProjectsRoute = '/dashboard/projects';
+export const dashboardTicketsRoute = 'dashboard/tickets';
+export const dashboardSettingsRoute = 'dashboard/settings';
 export const homeRoute = '/';
+export const verifyEmailRoute = '/verify';

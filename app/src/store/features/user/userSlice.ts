@@ -1,15 +1,7 @@
+/* eslint-disable no-unused-vars */
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from 'firebase/auth';
-
-/*
- * Features:
- * user log in
- * user log out
- * user register
- */
-
-export const TOKEN_KEY = 'user_token';
-// const token = localStorage.getItem(TOKEN_KEY) ?? null;
 
 export enum UserActions {
   LOGIN = 'user/login',
@@ -20,13 +12,11 @@ export enum UserActions {
 
 interface IAuthState {
   loading: boolean;
-  token: string | null;
   user: User | null;
 }
 
 const initialState: IAuthState = {
   loading: false,
-  token: null,
   user: null,
 };
 
@@ -85,6 +75,8 @@ const userSlice = createSlice({
 });
 
 export const selectUser = (state: IAuthState) => state.user;
+
 export const { startLoading, endLoading, login, loginAsOwner, loginAsAdmin, logout } =
   userSlice.actions;
+
 export default userSlice.reducer;

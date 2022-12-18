@@ -49,7 +49,6 @@ const userSlice = createSlice({
       return {
         type: UserActions.LOGIN,
         loading: false,
-        token: 'logged in',
         user: null,
       };
     },
@@ -58,7 +57,6 @@ const userSlice = createSlice({
       return {
         type: 'user/login',
         loading: false,
-        token: 'logged in',
         user: null,
       };
     },
@@ -74,7 +72,7 @@ const userSlice = createSlice({
   },
 });
 
-export const selectUser = (state: IAuthState) => state.user;
+export const selectUser = (state: IAuthState) => state.user.user;
 
 export const { startLoading, endLoading, login, loginAsOwner, loginAsAdmin, logout } =
   userSlice.actions;

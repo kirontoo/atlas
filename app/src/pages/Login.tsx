@@ -23,15 +23,21 @@ import {
 } from 'firebase/auth';
 import { ChangeEvent, useState } from 'react';
 import { FormEvent } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
 import { auth } from '../utils/firebase';
-import { signupRoute } from '../utils/routes';
+import { dashboardRoute, signupRoute } from '../utils/routes';
+import VerifyEmail from './VerifyEmail';
 
-function LoginCard() {
+interface LoginCardProps {
+  setVerifyEmailScreen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function LoginCard({ setVerifyEmailScreen }: LoginCardProps) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
@@ -60,7 +66,12 @@ function LoginCard() {
       );
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       storeDispatch({ type: UserActions.LOGIN, payload: user });
-      navigate('/dashboard');
+
+      if (user.emailVerified) {
+        navigate(dashboardRoute);
+      } else {
+        setVerifyEmailScreen(true);
+      }
     } catch (e: unknown) {
       if (e instanceof FirebaseError) {
         const code = e.code;
@@ -167,7 +178,16 @@ function Aside() {
 }
 
 function Login() {
-  return <AuthLayout main={<LoginCard />} aside={<Aside />} reverse />;
+  const [seeVerifyEmailScreen, setVerifyEmailScreen] = useState<boolean>(false);
+  return seeVerifyEmailScreen ? (
+    <VerifyEmail />
+  ) : (
+    <AuthLayout
+      main={<LoginCard setVerifyEmailScreen={setVerifyEmailScreen} />}
+      aside={<Aside />}
+      reverse
+    />
+  );
 }
 
 export default Login;

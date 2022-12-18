@@ -1,3 +1,4 @@
+import { getAnalytics } from 'firebase/analytics';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
@@ -14,5 +15,6 @@ const firebaseConfig = {
 // eslint-disable-next-line no-unused-vars
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
+const analytics = getAnalytics(firebaseApp);
 
-export { auth, firebaseApp };
+export { analytics, auth, firebaseApp };

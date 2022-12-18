@@ -23,9 +23,9 @@ import { useReducer, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
+import { auth } from '../utils/firebase';
 import { loginRoute } from '../utils/routes';
 
 function SignUpCard() {

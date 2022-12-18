@@ -17,7 +17,7 @@ import {
 import { FirebaseError } from '@firebase/util';
 import {
   browserLocalPersistence,
-  inMemoryPersistence,
+  browserSessionPersistence,
   setPersistence,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
@@ -26,9 +26,9 @@ import { FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { auth } from '../auth/firebase';
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
+import { auth } from '../utils/firebase';
 import { signupRoute } from '../utils/routes';
 
 function LoginCard() {
@@ -56,7 +56,7 @@ function LoginCard() {
       setError('');
       await setPersistence(
         auth,
-        rememberMe ? browserLocalPersistence : inMemoryPersistence,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence,
       );
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       storeDispatch({ type: UserActions.LOGIN, payload: user });

@@ -26,8 +26,8 @@ import { FiBell, FiChevronDown, FiMenu, FiPlus } from 'react-icons/fi';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { auth } from '../auth/firebase';
 import { UserActions } from '../store/features/user/userSlice';
+import { auth } from '../utils/firebase';
 import DarkModeToggle from './DarkModeToggle';
 import TicketsModalForm from './TicketsModalForm';
 

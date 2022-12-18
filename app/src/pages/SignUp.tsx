@@ -17,7 +17,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FirebaseError } from '@firebase/util';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import React from 'react';
 import { useReducer, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -27,8 +27,13 @@ import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
 import { auth } from '../utils/firebase';
 import { loginRoute } from '../utils/routes';
+import VerifyEmail from './VerifyEmail';
 
-function SignUpCard() {
+interface SignupCardProps {
+  setVerifyEmailScreen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
   interface ISignupUser {
     email: string;
     firstName: string;
@@ -55,8 +60,10 @@ function SignUpCard() {
   };
 
   const storeDispatch = useDispatch();
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [state, inputDispatch] = useReducer(inputReducer, initState);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [errors, setErrors] = useState({
     email: '',
     firstName: '',
@@ -64,6 +71,7 @@ function SignUpCard() {
     password: '',
     username: '',
   });
+
   const navigate = useNavigate();
 
   function inputReducer(state: ISignupUser, action: { type: string; payload: string }) {
@@ -92,6 +100,7 @@ function SignUpCard() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setIsLoading(true);
     try {
       // clear old errors before attempting to sign up user
       setErrors({
@@ -107,10 +116,16 @@ function SignUpCard() {
         state.email,
         state.password,
       );
+
       const { user } = userCredential;
-      storeDispatch({ type: UserActions.LOGIN, payload: user });
-      inputDispatch({ type: InputActions.reset, payload: '' });
-      navigate('/login');
+      console.log(user);
+
+      if (user) {
+        await sendEmailVerification(user, null);
+        storeDispatch({ type: UserActions.LOGIN, payload: user });
+        inputDispatch({ type: InputActions.reset, payload: '' });
+        setVerifyEmailScreen(true);
+      }
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {
         const errorCode = error.code;
@@ -133,6 +148,8 @@ function SignUpCard() {
       }
 
       // TODO: add a default error message (catch all)
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -217,7 +234,7 @@ function SignUpCard() {
             )}
           </FormControl>
           <Stack spacing={10} pt={2}>
-            <Button loadingText="Submitting" size="lg" type="submit">
+            <Button size="lg" type="submit" isLoading={isLoading}>
               Sign up
             </Button>
           </Stack>
@@ -264,7 +281,15 @@ function Aside() {
 }
 
 function SignUp() {
-  return <AuthLayout main={<SignUpCard />} aside={<Aside />} />;
+  const [seeVerifyEmailScreen, setVerifyEmailScreen] = useState<boolean>(false);
+  return seeVerifyEmailScreen ? (
+    <VerifyEmail />
+  ) : (
+    <AuthLayout
+      main={<SignUpCard setVerifyEmailScreen={setVerifyEmailScreen} />}
+      aside={<Aside />}
+    />
+  );
 }
 
 export default SignUp;

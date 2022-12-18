@@ -28,6 +28,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { UserActions } from '../store/features/user/userSlice';
 import { auth } from '../utils/firebase';
+import { loginRoute } from '../utils/routes';
 import DarkModeToggle from './DarkModeToggle';
 import TicketsModalForm from './TicketsModalForm';
 
@@ -51,7 +52,7 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
     try {
       await signOut(auth);
       dispatch({ type: UserActions.LOGOUT });
-      navigate('/');
+      navigate(loginRoute);
     } catch (error) {
       console.error(error);
       // TODO: handle error in a different way

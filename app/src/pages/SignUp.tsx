@@ -21,7 +21,6 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/
 import React from 'react';
 import { useReducer, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
@@ -72,8 +71,6 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
     username: '',
   });
 
-  const navigate = useNavigate();
-
   function inputReducer(state: ISignupUser, action: { type: string; payload: string }) {
     switch (action.type) {
       case InputActions.firstName:
@@ -118,7 +115,6 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
       );
 
       const { user } = userCredential;
-      console.log(user);
 
       if (user) {
         await sendEmailVerification(user, null);

@@ -3,6 +3,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from 'firebase/auth';
 
+import { RootState } from '../../reducer';
+
 export enum UserActions {
   LOGIN = 'user/login',
   LOGOUT = 'user/logout',
@@ -10,14 +12,16 @@ export enum UserActions {
   END_LOADING = 'user/stop-loading',
 }
 
-interface IAuthState {
+export interface IAuthState {
   loading: boolean;
-  user: User | null;
+  user: User | null | object;
+  isAuthenticated: boolean;
 }
 
 const initialState: IAuthState = {
   loading: false,
   user: null,
+  isAuthenticated: false,
 };
 
 const userSlice = createSlice({
@@ -40,39 +44,42 @@ const userSlice = createSlice({
     },
     logout() {
       return {
-        type: UserActions.LOGOUT,
         ...initialState,
+        type: UserActions.LOGOUT,
+        isAuthenticated: false,
       };
     },
 
-    loginAsAdmin() {
+    loginAsAdmin(state: IAuthState) {
       return {
+        ...state,
         type: UserActions.LOGIN,
         loading: false,
         user: null,
       };
     },
 
-    loginAsOwner() {
+    loginAsOwner(state: IAuthState) {
       return {
+        ...state,
         type: 'user/login',
         loading: false,
         user: null,
       };
     },
 
-    login(state: IAuthState, action: PayloadAction<User>) {
+    login(state: IAuthState, action: PayloadAction<User | object>) {
       return {
-        type: UserActions.LOGIN,
-        loading: false,
-        token: 'logged in',
+        ...state,
+        isAuthenticated: true,
         user: action.payload,
       };
     },
   },
 });
 
-export const selectUser = (state: IAuthState) => state.user.user;
+export const selectUser = (state: RootState) => (state.user ? state.user.user : null);
+export const selectAuthenticated = (state: RootState) => state.user.isAuthenticated;
 
 export const { startLoading, endLoading, login, loginAsOwner, loginAsAdmin, logout } =
   userSlice.actions;

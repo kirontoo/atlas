@@ -32,6 +32,7 @@ import { UserActions } from '../store/features/user/userSlice';
 import { auth } from '../utils/firebase';
 import { dashboardRoute, signupRoute } from '../utils/routes';
 import VerifyEmail from './VerifyEmail';
+import { loginToFirebase } from '../utils/services/AuthService';
 
 interface LoginCardProps {
   setVerifyEmailScreen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -60,12 +61,7 @@ function LoginCard({ setVerifyEmailScreen }: LoginCardProps) {
     setLoading(true);
     try {
       setError('');
-      await setPersistence(
-        auth,
-        rememberMe ? browserLocalPersistence : browserSessionPersistence,
-      );
-      const { user } = await signInWithEmailAndPassword(auth, email, password);
-      storeDispatch({ type: UserActions.LOGIN, payload: user });
+      const user = await loginToFirebase({ email, password }, rememberMe);
 
       if (user.emailVerified) {
         navigate(dashboardRoute);

@@ -20,15 +20,14 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { FiBell, FiChevronDown, FiMenu, FiPlus } from 'react-icons/fi';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { UserActions } from '../store/features/user/userSlice';
-import { auth } from '../utils/firebase';
 import { loginRoute } from '../utils/routes';
+import { signoutOfFirebase } from '../utils/services/AuthService';
 import DarkModeToggle from './DarkModeToggle';
 import TicketsModalForm from './TicketsModalForm';
 
@@ -50,8 +49,7 @@ const Navbar = ({ onOpen, ...rest }: MobileProps) => {
   async function signUserOut() {
     dispatch({ type: UserActions.START_LOADING });
     try {
-      await signOut(auth);
-      dispatch({ type: UserActions.LOGOUT });
+      await signoutOfFirebase();
       navigate(loginRoute);
     } catch (error) {
       console.error(error);

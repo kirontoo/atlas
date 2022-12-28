@@ -8,8 +8,11 @@
 import {
   browserLocalPersistence,
   browserSessionPersistence,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
   setPersistence,
   signInWithEmailAndPassword,
+  signOut,
   User,
 } from 'firebase/auth';
 
@@ -21,6 +24,11 @@ import {
 import { auth } from '../firebase';
 
 export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupCredentials {
   email: string;
   password: string;
 }
@@ -63,6 +71,24 @@ export function setLoggedOutUser() {
   removeLocalStorageUser();
 }
 
-export function signupTofirebase() {}
+export async function signupTofirebase({
+  email,
+  password,
+}: SignupCredentials): Promise<User | null> {
+  const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
-export function signoutOfFirebase() {}
+  if (user) {
+    await sendEmailVerification(user, null);
+    setLoggedInUser(user);
+    return user;
+  }
+
+  return null;
+}
+
+export async function signoutOfFirebase(): Promise<void> {
+  await signOut(auth);
+  storeLogout();
+  removeLocalStorageUser();
+  return;
+}

@@ -26,6 +26,7 @@ import AuthLayout from '../components/layouts/AuthLayout';
 import { UserActions } from '../store/features/user/userSlice';
 import { auth } from '../utils/firebase';
 import { loginRoute } from '../utils/routes';
+import { signupTofirebase } from '../utils/services/AuthService';
 import VerifyEmail from './VerifyEmail';
 
 interface SignupCardProps {
@@ -108,17 +109,12 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
         username: '',
       });
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        state.email,
-        state.password,
-      );
-
-      const { user } = userCredential;
+      const user = await signupTofirebase({
+        email: state.email,
+        password: state.password,
+      });
 
       if (user) {
-        await sendEmailVerification(user, null);
-        storeDispatch({ type: UserActions.LOGIN, payload: user });
         inputDispatch({ type: InputActions.reset, payload: '' });
         setVerifyEmailScreen(true);
       }

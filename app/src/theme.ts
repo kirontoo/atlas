@@ -5,7 +5,7 @@ import {
 } from '@chakra-ui/react';
 
 const styles = {
-  global: (props) => ({
+  global: (props: Dict<any>) => ({
     body: {
       fontFamily: 'body',
       color: mode('gray.800', 'whiteAlpha.900')(props),
@@ -38,5 +38,6 @@ const theme = extendTheme(
 );
 
 import { mode } from '@chakra-ui/theme-tools';
+import { Dict } from '@chakra-ui/utils';
 
 export default theme;

@@ -4,16 +4,15 @@ type Role int
 
 const (
 	Admin Role = iota + 100
-	Owner
 	Member
 )
 
 func (r Role) Values() []Role {
-	return []Role{Admin, Owner, Member}
+	return []Role{Admin, Member}
 }
 
 func (r Role) String() string {
-	roles := [...]string{"ADMIN", "MEMBER", "OWNER"}
+	roles := [...]string{"ADMIN", "MEMBER"}
 	if r < Admin || r > Member {
 		return "Unknown"
 	}
@@ -26,7 +25,7 @@ func (r Role) IsEqual(other Role) bool {
 
 func (r Role) IsARole() bool {
 	switch r {
-	case Admin, Owner, Member:
+	case Admin, Member:
 		return true
 	}
 	return false

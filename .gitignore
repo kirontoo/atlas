@@ -5,3 +5,4 @@ dist-ssr
 */node_modules/*
 *.exe
 *.env
+/server/*-firebase-*.json

@@ -15,13 +15,13 @@ import (
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
-	Username  string             `bson:"username,omitempty" json:"username"`
-	Email     string             `bson:"email,omitempty" json:"email"`
-	Password  string             `bson:"password,omitempty" json:"password"`
-	Avatar    *string            `bson:"avatar,omitempty" json:"avatar"`
-	Role      *Role              `bson:"role,omitempty" json:"role"`
-	Projects  []Project          `bson:"projects,omitempty" json:"projects"`
+	ID        primitive.ObjectID `bson:"_id,omitempty"        json:"_id"`
+	UID       string             `bson:"uid,omitempty"        json:"uid"`
+	Username  string             `bson:"username,omitempty"   json:"username"`
+	Email     string             `bson:"email,omitempty"      json:"email"`
+	Role      Role               `bson:"role,omitempty"       json:"role"`
+	FirstName string             `bson:"firstName,omitempty"  json:"firstName"`
+	LastName  string             `bson:"lastName,omitempty"   json:"lastName"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
@@ -35,8 +35,12 @@ func (m *UserModel) jsonSchema() bson.M {
 	var role Role
 	return bson.M{
 		"bsonType": "object",
-		"required": []string{"username", "email", "password"},
+		"required": []string{"uid", "username", "email", "role"},
 		"properties": bson.M{
+			"uid": bson.M{
+				"bsonType":    "string",
+				"description": "the Firebase user UID reference, whish is required and must be a string",
+			},
 			"username": bson.M{
 				"bsonType": "string",
 				"description": "the username of the user, which is required and " +
@@ -47,40 +51,18 @@ func (m *UserModel) jsonSchema() bson.M {
 				"description": "the email of the user, which is required and " +
 					"must be a valid email address",
 			},
-			"password": bson.M{
-				"bsonType": "string",
-				"description": "the hashed password of the user, which is required and " +
-					"must be a string",
-			},
-			"avatar": bson.M{
-				"bsonType": "string",
-				"description": "the avatar source of the user, which is not required and " +
-					"must be a string and a valid url",
-			},
-			"projects": bson.M{
-				"bsonType":    "array",
-				"description": "the projects a user is involved in",
-				"required":    []string{"title", "created_at", "updated_at"},
-				"items": bson.M{
-					"properties": bson.M{
-						"title": bson.M{
-							"bsonType":    "string",
-							"description": "the title of the project",
-						},
-						"created_at": bson.M{
-							"bsonType":    "timestamp",
-							"description": "the date and time of when this user was created",
-						},
-						"updated_at": bson.M{
-							"bsonType":    "timestamp",
-							"description": "the date and time of when this user was created",
-						},
-					},
-				},
-			},
-			"roles": bson.M{
+			"role": bson.M{
+				"bsonType":    "int",
 				"enum":        role.Values(),
 				"description": "the role permissions a user can have",
+			},
+			"firstName": bson.M{
+				"bsonType":    "string",
+				"description": "the first name of the user",
+			},
+			"lastName": bson.M{
+				"bsonType":    "string",
+				"description": "the last name of the user",
 			},
 		},
 	}
@@ -88,7 +70,7 @@ func (m *UserModel) jsonSchema() bson.M {
 
 func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
 	const collectionName = "users"
-	var db = client.Database(dbName)
+	db := client.Database(dbName)
 	if db == nil {
 		return nil, errors.New("database does not exist")
 	}
@@ -113,7 +95,6 @@ func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
 			log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
 			return nil, err
 		}
-
 	}
 
 	userModel.db = client
@@ -126,7 +107,11 @@ func (m *UserModel) GetById(id string) (*User, error) {
 	return nil, nil
 }
 
-func (m *UserModel) FindOne(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*User, error) {
+func (m *UserModel) FindOne(
+	ctx context.Context,
+	filter interface{},
+	opts *options.FindOneOptions,
+) (*User, error) {
 	var result *User
 	err := m.Collection.FindOne(
 		ctx,
@@ -159,8 +144,27 @@ func (m *UserModel) Insert(ctx context.Context, u *User) (*User, error) {
 	return u, nil
 }
 
-func (m *UserModel) Update(data *User) (*User, error) {
-	return nil, nil
+func (m *UserModel) Update(ctx context.Context, id string, u *User) (int64, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, err
+	}
+	filter := bson.D{{Key: "_id", Value: oid}}
+	u.ID = oid
+	u.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+
+	doc, err := toBsonDocument(u)
+	if err != nil {
+		return 0, err
+	}
+	update := bson.D{{Key: "$set", Value: doc}}
+
+	result, err := m.Collection.UpdateOne(ctx, filter, update, nil)
+	if err != nil || result.MatchedCount == 0 {
+		return 0, err
+	}
+
+	return result.MatchedCount, nil
 }
 
 func (m *UserModel) Delete(ctx context.Context, id string) (int64, error) {

@@ -10,8 +10,10 @@ import (
 	"github.com/kirontoo/atlas/server/internals/models"
 )
 
-const projectDirName = "server"
-const database = "atlas"
+const (
+	projectDirName = "server"
+	database       = "atlas"
+)
 
 type api struct {
 	router  *gin.Engine

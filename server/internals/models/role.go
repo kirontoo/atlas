@@ -30,3 +30,11 @@ func (r Role) IsARole() bool {
 	}
 	return false
 }
+
+func (r Role) Admin() Role {
+	return Admin
+}
+
+func (r Role) Member() Role {
+	return Member
+}

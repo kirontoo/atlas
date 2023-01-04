@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -10,8 +11,10 @@ import (
 	"github.com/kirontoo/atlas/server/internals/models"
 )
 
-const projectDirName = "server"
-const database = "atlas"
+const (
+	projectDirName = "server"
+	database       = "atlas"
+)
 
 type api struct {
 	router  *gin.Engine
@@ -34,9 +37,17 @@ func main() {
 
 	db := getMongoClient(env.mongodbUri)
 
+	// firebase init
+	initFirebaseApp()
+	initFirebaseClient()
+
 	gin.ForceConsoleColor()
 
 	userModel, err := models.NewUserModel(db, database)
+	if err != nil {
+		log.Fatalf("could not make userModel: %v", err)
+	}
+
 	api := &api{
 		router:  gin.New(),
 		tickets: &models.TicketModel{DB: db, Collection: getCollection(db, "tickets")},

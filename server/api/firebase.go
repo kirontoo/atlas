@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	firebaseClient *auth.Client
-	firebaseApp    *firebase.App
+	fbAuthClient *auth.Client
+	fbApp    *firebase.App
 )
 
 func initFirebaseApp() {
@@ -19,14 +19,14 @@ func initFirebaseApp() {
 		log.Fatalf("error initializing firebase app: %v", err)
 	}
 
-	firebaseApp = app
+	fbApp = app
 }
 
 func initFirebaseClient() {
-	client, err := firebaseApp.Auth(context.Background())
+	client, err := fbApp.Auth(context.Background())
 	if err != nil {
 		log.Fatalf("error getting firebase auth client: %v\n", err)
 	}
 
-	firebaseClient = client
+	fbAuthClient = client
 }

@@ -22,8 +22,10 @@ type api struct {
 	users   *models.UserCollection
 }
 
-var db *mongo.Database
-var userCollection = &models.UserCollection{}
+var (
+	db             *mongo.Database
+	users = &models.UserCollection{}
+)
 
 func main() {
 	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
@@ -48,24 +50,34 @@ func main() {
 	gin.ForceConsoleColor()
 
 	// initialize collections
-	err = userCollection.Init(db)
+	err = users.Init(db)
 	if err != nil {
 		log.Fatalf("could not make user collection: %v", err)
 	}
 
 	api := &api{
-		router:  gin.New(),
-		tickets: &models.TicketModel{DB: mongoClient, Collection: getCollection(mongoClient, "tickets")},
-		users:   userCollection,
+		router: gin.New(),
+		tickets: &models.TicketModel{
+			DB:         mongoClient,
+			Collection: getCollection(mongoClient, "tickets"),
+		},
+		users: users,
 	}
 
 	// set middlewares
+	api.router.Use(gin.Logger())
+	api.router.Use(gin.Recovery())
 	api.router.Use(CORSMiddleware())
 
-	api.router.POST("/api/tickets", api.CreateTicket)
-	api.router.GET("/api/tickets/:id", api.GetTicketByID)
-	api.router.POST("/api/tickets/:id", api.UpdateTicket)
-	api.router.DELETE("/api/tickets/:id", api.DeleteTicket)
+	ticketRouter := api.router.Group("/api/tickets")
+	ticketRouter.Use(AuthRequired())
+	{
+		ticketRouter.POST("/", api.CreateTicket)
+		ticketRouter.GET("/:id", api.GetTicketByID)
+		ticketRouter.POST("/:id", api.UpdateTicket)
+		ticketRouter.DELETE("/:id", api.DeleteTicket)
+	}
+
 	api.router.POST("/api/users/signup", api.UserSignup)
 
 	api.router.GET("/ping", func(c *gin.Context) {

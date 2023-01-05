@@ -67,24 +67,22 @@ func (m *UserCollection) jsonSchema() bson.M {
 	}
 }
 
-func NewUserModel(client *mongo.Client, dbName string) (*UserCollection, error) {
+func (m *UserCollection) Init(db *mongo.Database) error {
 	const collectionName = "users"
-	db := client.Database(dbName)
-	if db == nil {
-		return nil, errors.New("database does not exist")
-	}
 
-	userModel := &UserCollection{}
+	if db == nil {
+		return errors.New("database does not exist")
+	}
 
 	collectionNames, err := db.ListCollectionNames(context.TODO(), bson.D{})
 	if err != nil {
 		log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
-		return nil, err
+		return err
 	}
 
 	if !isStringExists(collectionNames, collectionName) {
 		validator := bson.M{
-			"$jsonSchema": userModel.jsonSchema(),
+			"$jsonSchema": m.jsonSchema(),
 		}
 
 		opts := options.CreateCollection().SetValidator(validator)
@@ -92,14 +90,13 @@ func NewUserModel(client *mongo.Client, dbName string) (*UserCollection, error) 
 		err := db.CreateCollection(context.TODO(), "users", opts)
 		if err != nil {
 			log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
-			return nil, err
+			return err
 		}
 	}
 
-	userModel.db = client
-	userModel.collection = db.Collection(collectionName)
+	m.collection = db.Collection(collectionName)
 
-	return userModel, nil
+	return nil
 }
 
 func (m *UserCollection) GetById(id string) (*User, error) {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
@@ -9,18 +8,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kirontoo/atlas/server/internals/models"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
 	projectDirName = "server"
-	database       = "atlas"
+	databaseName   = "atlas"
 )
 
 type api struct {
 	router  *gin.Engine
 	tickets *models.TicketModel
-	users   *models.UserModel
+	users   *models.UserCollection
 }
+
+var db *mongo.Database
+var userCollection = &models.UserCollection{}
 
 func main() {
 	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
@@ -35,7 +38,8 @@ func main() {
 
 	env.LoadVariables()
 
-	db := getMongoClient(env.mongodbUri)
+	mongoClient := getMongoClient(env.mongodbUri)
+	db = mongoClient.Database(databaseName)
 
 	// firebase init
 	initFirebaseApp()
@@ -43,15 +47,16 @@ func main() {
 
 	gin.ForceConsoleColor()
 
-	userModel, err := models.NewUserModel(db, database)
+	// initialize collections
+	err = userCollection.Init(db)
 	if err != nil {
-		log.Fatalf("could not make userModel: %v", err)
+		log.Fatalf("could not make user collection: %v", err)
 	}
 
 	api := &api{
 		router:  gin.New(),
-		tickets: &models.TicketModel{DB: db, Collection: getCollection(db, "tickets")},
-		users:   userModel,
+		tickets: &models.TicketModel{DB: mongoClient, Collection: getCollection(mongoClient, "tickets")},
+		users:   userCollection,
 	}
 
 	// set middlewares

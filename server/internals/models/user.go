@@ -26,12 +26,11 @@ type User struct {
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
-type UserModel struct {
-	db         *mongo.Client
-	Collection *mongo.Collection
+type UserCollection struct {
+	collection *mongo.Collection
 }
 
-func (m *UserModel) jsonSchema() bson.M {
+func (m *UserCollection) jsonSchema() bson.M {
 	var role Role
 	return bson.M{
 		"bsonType": "object",
@@ -68,14 +67,14 @@ func (m *UserModel) jsonSchema() bson.M {
 	}
 }
 
-func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
+func NewUserModel(client *mongo.Client, dbName string) (*UserCollection, error) {
 	const collectionName = "users"
 	db := client.Database(dbName)
 	if db == nil {
 		return nil, errors.New("database does not exist")
 	}
 
-	userModel := &UserModel{}
+	userModel := &UserCollection{}
 
 	collectionNames, err := db.ListCollectionNames(context.TODO(), bson.D{})
 	if err != nil {
@@ -98,22 +97,22 @@ func NewUserModel(client *mongo.Client, dbName string) (*UserModel, error) {
 	}
 
 	userModel.db = client
-	userModel.Collection = db.Collection(collectionName)
+	userModel.collection = db.Collection(collectionName)
 
 	return userModel, nil
 }
 
-func (m *UserModel) GetById(id string) (*User, error) {
+func (m *UserCollection) GetById(id string) (*User, error) {
 	return nil, nil
 }
 
-func (m *UserModel) FindOne(
+func (m *UserCollection) FindOne(
 	ctx context.Context,
 	filter interface{},
 	opts *options.FindOneOptions,
 ) (*User, error) {
 	var result *User
-	err := m.Collection.FindOne(
+	err := m.collection.FindOne(
 		ctx,
 		filter,
 		opts,
@@ -127,7 +126,7 @@ func (m *UserModel) FindOne(
 	return result, nil
 }
 
-func (m *UserModel) Insert(ctx context.Context, u *User) (*User, error) {
+func (m *UserCollection) Insert(ctx context.Context, u *User) (*User, error) {
 	if u == nil {
 		return nil, errors.New("No user data")
 	}
@@ -136,7 +135,7 @@ func (m *UserModel) Insert(ctx context.Context, u *User) (*User, error) {
 	u.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	u.UpdatedAt = u.CreatedAt
 
-	_, err := m.Collection.InsertOne(ctx, *u)
+	_, err := m.collection.InsertOne(ctx, *u)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +143,7 @@ func (m *UserModel) Insert(ctx context.Context, u *User) (*User, error) {
 	return u, nil
 }
 
-func (m *UserModel) Update(ctx context.Context, id string, u *User) (int64, error) {
+func (m *UserCollection) Update(ctx context.Context, id string, u *User) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err
@@ -159,7 +158,7 @@ func (m *UserModel) Update(ctx context.Context, id string, u *User) (int64, erro
 	}
 	update := bson.D{{Key: "$set", Value: doc}}
 
-	result, err := m.Collection.UpdateOne(ctx, filter, update, nil)
+	result, err := m.collection.UpdateOne(ctx, filter, update, nil)
 	if err != nil || result.MatchedCount == 0 {
 		return 0, err
 	}
@@ -167,6 +166,6 @@ func (m *UserModel) Update(ctx context.Context, id string, u *User) (int64, erro
 	return result.MatchedCount, nil
 }
 
-func (m *UserModel) Delete(ctx context.Context, id string) (int64, error) {
+func (m *UserCollection) Delete(ctx context.Context, id string) (int64, error) {
 	return 0, nil
 }

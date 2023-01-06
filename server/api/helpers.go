@@ -43,3 +43,18 @@ func generateTokens(secretKey string, email string, username string) (string, st
 func getUserByRefId(refId string) (*models.User, error) {
 	return users.FindOne(context.Background(), bson.D{{Key: "uid", Value: refId}}, nil)
 }
+
+func getCurrentUserId(c *gin.Context) string {
+	value, exists := c.Get(UserContext)
+	user := value.(models.User)
+	if exists {
+		return user.ID.String()
+	}
+	return ""
+}
+
+func getCurrentUser(c *gin.Context) (models.User, bool) {
+	value, exists := c.Get(UserContext)
+	user := value.(models.User)
+	return user, exists
+}

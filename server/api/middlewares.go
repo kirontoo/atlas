@@ -55,7 +55,6 @@ func AuthRequired() gin.HandlerFunc {
 			c.AbortWithStatus(401)
 			return
 		}
-		log.Printf("Verified ID token: %v\n", token)
 
 		// find user by uid
 		user, err := getUserByRefId(token.UID)

@@ -14,8 +14,6 @@ func getMongoClient(uri string) *mongo.Client {
 	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
-	} else {
-		log.Println("this is working!")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -32,6 +30,6 @@ func getMongoClient(uri string) *mongo.Client {
 }
 
 func getCollection(db *mongo.Client, collectionName string) (collection *mongo.Collection) {
-	collection = db.Database(database).Collection(collectionName)
+	collection = db.Database(databaseName).Collection(collectionName)
 	return
 }

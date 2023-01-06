@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/kirontoo/atlas/server/internals/models"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type SignedDetails struct {
@@ -27,12 +30,16 @@ func generateTokens(secretKey string, email string, username string) (string, st
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)
-	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(secretKey))
-
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).
+		SignedString([]byte(secretKey))
 	if err != nil {
 		log.Panic(err)
 		return "", "", err
 	}
 
 	return token, refreshToken, err
+}
+
+func getUserByRefId(refId string) (*models.User, error) {
+	return users.FindOne(context.Background(), bson.D{{Key: "uid", Value: refId}}, nil)
 }

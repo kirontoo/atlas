@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/kirontoo/atlas/server/internals/models"
 	"go.mongodb.org/mongo-driver/bson"

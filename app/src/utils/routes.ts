@@ -5,3 +5,4 @@ export const dashboardProjectsRoute = '/dashboard/projects';
 export const dashboardTicketsRoute = '/dashboard/tickets';
 export const dashboardSettingsRoute = '/dashboard/settings';
 export const homeRoute = '/';
+export const forgotPasswordRoute = '/reset-password';

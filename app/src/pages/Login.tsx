@@ -15,12 +15,6 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FirebaseError } from '@firebase/util';
-import {
-  browserLocalPersistence,
-  browserSessionPersistence,
-  setPersistence,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
 import { ChangeEvent, useState } from 'react';
 import { FormEvent } from 'react';
 import React from 'react';
@@ -28,11 +22,9 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import AuthLayout from '../components/layouts/AuthLayout';
-import { UserActions } from '../store/features/user/userSlice';
-import { auth } from '../utils/firebase';
-import { dashboardRoute, signupRoute } from '../utils/routes';
-import VerifyEmail from './VerifyEmail';
+import { dashboardRoute, forgotPasswordRoute, signupRoute } from '../utils/routes';
 import { loginToFirebase } from '../utils/services/AuthService';
+import VerifyEmail from './VerifyEmail';
 
 interface LoginCardProps {
   setVerifyEmailScreen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -45,7 +37,6 @@ function LoginCard({ setVerifyEmailScreen }: LoginCardProps) {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
-  const storeDispatch = useDispatch();
 
   function onInputChange(e: ChangeEvent<HTMLInputElement>) {
     const { id, value } = e.target;
@@ -131,7 +122,9 @@ function LoginCard({ setVerifyEmailScreen }: LoginCardProps) {
               >
                 Remember me
               </Checkbox>
-              <Link color={'primary.300'}>Forgot password?</Link>
+              <Link color={'primary.300'} href={forgotPasswordRoute}>
+                Forgot password?
+              </Link>
             </Stack>
             <Button type="submit" isLoading={isLoading}>
               Login

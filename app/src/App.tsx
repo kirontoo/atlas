@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Dashboard/Projects';
+import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
@@ -49,7 +50,7 @@ function App() {
         <Route path={routeNames.homeRoute} element={<Home />} />
         <Route path={routeNames.signupRoute} element={<SignUp />} />
         <Route path={routeNames.loginRoute} element={<Login />} />
-        <Route path="/test" element={<PrivateRoute>hello world</PrivateRoute>} />
+        <Route path={routeNames.forgotPasswordRoute} element={<ForgotPassword />} />
         <Route
           path={routeNames.dashboardRoute}
           element={

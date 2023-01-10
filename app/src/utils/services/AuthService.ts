@@ -10,6 +10,7 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signOut,
@@ -71,6 +72,7 @@ export function setLoggedOutUser() {
   removeLocalStorageUser();
 }
 
+// NOTE: the name will change later after integrating with backend user
 export async function signupTofirebase({
   email,
   password,
@@ -91,4 +93,8 @@ export async function signoutOfFirebase(): Promise<void> {
   storeLogout();
   removeLocalStorageUser();
   return;
+}
+
+export async function sendPasswordResetLink(email: string): Promise<void> {
+  return await sendPasswordResetEmail(auth, email);
 }

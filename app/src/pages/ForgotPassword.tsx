@@ -20,10 +20,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FirebaseError } from '@firebase/util';
-import { sendPasswordResetEmail } from 'firebase/auth';
 import { FormEvent, useRef, useState } from 'react';
 
-import { auth } from '../utils/firebase';
+import { sendPasswordResetLink } from '../utils/services/AuthService';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>('');
@@ -38,7 +37,7 @@ export default function ForgotPassword() {
 
     try {
       if (email != '') {
-        await sendPasswordResetEmail(auth, email);
+        await sendPasswordResetLink(email);
         onOpen();
       }
     } catch (e: unknown) {

@@ -19,7 +19,6 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { FirebaseError } from '@firebase/util';
 import { FormEvent, useRef, useState } from 'react';
 
 import { sendPasswordResetLink } from '../utils/services/AuthService';
@@ -29,7 +28,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState<string>('');
   const [isLoading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef();
+  const cancelRef = useRef(null);
 
   async function sendPasswordResetRequest(e: FormEvent) {
     e.preventDefault();
@@ -41,14 +40,7 @@ export default function ForgotPassword() {
         onOpen();
       }
     } catch (e: unknown) {
-      if (e instanceof FirebaseError) {
-        const errorCode = e.code;
-        const errorMessage = e.message;
-        console.log(errorCode);
-        console.log(errorMessage);
-        setError(e.message);
-      }
-      // ..
+      setError('could not send reset password email');
     } finally {
       setLoading(false);
     }
@@ -101,14 +93,6 @@ export default function ForgotPassword() {
           </VStack>
         </Stack>
       </Flex>
-      <SendEmailDialog cancelRef={cancelRef} onClose={onClose} isOpen={isOpen} />
-    </>
-  );
-}
-
-function SendEmailDialog({ cancelRef, onClose, isOpen }) {
-  return (
-    <>
       <AlertDialog
         motionPreset="slideInBottom"
         leastDestructiveRef={cancelRef}

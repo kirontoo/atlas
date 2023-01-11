@@ -14,8 +14,7 @@ export const apiSlice = createApi({
       query: () => '/ping',
       transformResponse: (response: { message: string }) => response.message,
     }),
-    // TODO: create a type for the body
-    userSignup: builder.query<APIResponse, { token: string; body: any }>({
+    createUser: builder.mutation<APIResponse, { token: string; body: any }>({
       query: (data) => {
         const { token, body } = data;
         return {
@@ -33,6 +32,6 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetPingQuery } = apiSlice;
+export const { useGetPingQuery, useCreateUserMutation } = apiSlice;
 
 export default apiSlice;

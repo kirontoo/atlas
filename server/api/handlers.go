@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/kirontoo/atlas/server/internals/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -89,17 +90,17 @@ func (s *api) DeleteTicket(c *gin.Context) {
 
 func (s *api) UserSignup(c *gin.Context) {
 	type userSignupCredentials struct {
-		Uid       string `form:"uid"      json:"uid"      binding:"required"`
-		Username  string `form:"username" json:"username" binding:"required"`
-		Email     string `form:"email"    json:"email"    binding:"required"`
-		FirstName string `form:"firstName" json:"firstName"`
-		LastName  string `form:"lastName" json:"lastName"`
+		Username  string      `form:"username"  json:"username"  binding:"required"`
+		Email     string      `form:"email"     json:"email"     binding:"required"`
+		FirstName string      `form:"firstName" json:"firstName"`
+		LastName  string      `form:"lastName"  json:"lastName"`
+		Role      models.Role `form:"role"      json:"role"`
 	}
-
-	var userCred userSignupCredentials
 
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
+
+	var userCred userSignupCredentials
 
 	// Return if bad client data
 	if err := c.BindJSON(&userCred); err != nil {
@@ -109,31 +110,66 @@ func (s *api) UserSignup(c *gin.Context) {
 	}
 
 	// verify user doesn't exist
-	userExists, _ := s.users.FindOne(ctx, bson.D{{Key: "uid", Value: userCred.Uid}}, nil)
+	userExists, _ := s.users.FindOne(
+		ctx,
+		bson.D{
+			{
+				Key: "$or",
+				Value: bson.A{
+					bson.D{{Key: "username", Value: userCred.Username}},
+					bson.D{{Key: "email", Value: userCred.Email}},
+				},
+			},
+		},
+		nil,
+	)
+
 	if userExists != nil {
-		// user already exists
-		c.JSON(http.StatusConflict, gin.H{"status": "error", "message": "user already exists"})
-		return
+		if userExists.Email == userCred.Email {
+			c.AbortWithStatusJSON(
+				http.StatusConflict,
+				gin.H{"status": "error", "message": "email already exists"},
+			)
+			return
+		}
+
+		if userExists.Username == userCred.Username {
+			c.AbortWithStatusJSON(
+				http.StatusConflict,
+				gin.H{"status": "error", "message": "username already exists"},
+			)
+			return
+		}
+	}
+
+	// generate our own uid
+	uid := uuid.New().String()
+
+	// assign a role: defaults to Member
+	var role models.Role
+	if userCred.Role > 0 {
+		role = userCred.Role
+	} else {
+		role = role.Member()
 	}
 
 	// create user
-	var role models.Role
-	_, err := s.users.Insert(ctx, &models.User{
-		UID:       userCred.Uid,
+	user, err := s.users.Insert(ctx, &models.User{
+		UID:       uid,
 		Username:  userCred.Username,
 		Email:     userCred.Email,
-		Role:      role.Member(),
-		FirstName: "",
-		LastName:  "",
+		Role:      role,
+		FirstName: userCred.FirstName,
+		LastName:  userCred.LastName,
 	})
 	if err != nil {
-		log.Print(err)
+		log.Fatalf("error creating user in db: %v", err)
 		c.JSON(
 			http.StatusInternalServerError,
-			gin.H{"status": "error", "message": "user was not created", "errorMessage": err},
+			gin.H{"status": "error", "message": "user was not created"},
 		)
 		return
 	}
 
-	c.JSON(200, gin.H{"success": true, "data": nil, "message": "user created"})
+	c.JSON(200, gin.H{"success": true, "data": user, "message": "user created"})
 }

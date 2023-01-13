@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User } from 'firebase/auth';
+import { User as FbUser } from 'firebase/auth';
 
 import { RootState } from '../../reducer';
 
@@ -10,6 +10,12 @@ export enum UserActions {
   LOGOUT = 'user/logout',
   START_LOADING = 'user/start-loading',
   END_LOADING = 'user/stop-loading',
+}
+
+export interface User extends FbUser {
+  firstName: string;
+  lastName: string;
+  username: string;
 }
 
 export interface IAuthState {

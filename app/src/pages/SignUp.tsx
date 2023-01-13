@@ -17,31 +17,29 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FirebaseError } from '@firebase/util';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import React from 'react';
 import { useReducer, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 import AuthLayout from '../components/layouts/AuthLayout';
-import { UserActions } from '../store/features/user/userSlice';
-import { auth } from '../utils/firebase';
+import { useCreateUserMutation } from '../store/features/api/apiSlice';
+import { User } from '../store/features/user/userSlice';
 import { loginRoute } from '../utils/routes';
-import { signupTofirebase } from '../utils/services/AuthService';
+import { setLoggedInUser, signupTofirebase } from '../utils/services/AuthService';
 import VerifyEmail from './VerifyEmail';
 
 interface SignupCardProps {
   setVerifyEmailScreen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
-  interface ISignupUser {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    username: string;
-  }
+interface ISignupUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  username: string;
+}
 
+function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
   const initState: ISignupUser = {
     email: '',
     firstName: '',
@@ -59,10 +57,10 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
     reset: 'reset',
   };
 
-  const storeDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [state, inputDispatch] = useReducer(inputReducer, initState);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [createUser] = useCreateUserMutation();
 
   const [errors, setErrors] = useState({
     email: '',
@@ -113,8 +111,23 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
         email: state.email,
         password: state.password,
       });
+      const { data } = await createUser({
+        uid: user!.uid,
+        username: state.username,
+        email: state.email,
+        firstName: state.firstName,
+        lastName: state.lastName,
+      }).unwrap();
 
-      if (user) {
+      if (data) {
+        const userData = {
+          ...user,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          username: data.username,
+        } as User;
+
+        setLoggedInUser(userData);
         inputDispatch({ type: InputActions.reset, payload: '' });
         setVerifyEmailScreen(true);
       }
@@ -134,7 +147,7 @@ function SignUpCard({ setVerifyEmailScreen }: SignupCardProps) {
             break;
           default:
             // TODO: handle this with a error message for the user
-            console.log(errorMessage);
+            setErrors((state) => ({ ...state, password: 'could not create user' }));
             break;
         }
       }

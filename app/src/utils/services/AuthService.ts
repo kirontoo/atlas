@@ -83,6 +83,8 @@ export async function signupTofirebase({
     await sendEmailVerification(user, null);
     setLoggedInUser(user);
     return user;
+  } else {
+    setLoggedOutUser();
   }
 
   return null;

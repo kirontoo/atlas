@@ -23,7 +23,7 @@ type api struct {
 }
 
 var (
-	db             *mongo.Database
+	db    *mongo.Database
 	users = &models.UserCollection{}
 )
 
@@ -78,7 +78,14 @@ func main() {
 		ticketRouter.DELETE("/:id", api.DeleteTicket)
 	}
 
-	api.router.POST("/api/users/signup", api.UserSignup)
+	userRouter := api.router.Group("/api/users")
+	userRouter.Use(AuthRequired())
+	{
+		userRouter.DELETE(("/"), api.userDelete)
+		userRouter.PATCH(("/"), api.userUpdate)
+	}
+
+	api.router.POST("/api/users", api.UserSignup)
 
 	api.router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

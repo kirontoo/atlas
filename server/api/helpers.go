@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -47,15 +49,31 @@ func getUserByRefId(refId string) (*models.User, error) {
 
 func getCurrentUserId(c *gin.Context) string {
 	value, exists := c.Get(UserContext)
-	user := value.(models.User)
+	user := value.(*models.User)
 	if exists {
-		return user.ID.String()
+		return cleanObjectId(user.ID.String())
 	}
 	return ""
 }
 
-func getCurrentUser(c *gin.Context) (models.User, bool) {
+func cleanObjectId(id string) string {
+	a := strings.TrimPrefix(id, "ObjectID(\"")
+	b := strings.TrimSuffix(a, "\")")
+	return b
+}
+
+func getCurrentUser(c *gin.Context) (*models.User, bool) {
 	value, exists := c.Get(UserContext)
-	user := value.(models.User)
+	user := value.(*models.User)
 	return user, exists
+}
+
+func structToMap(obj interface{}) bson.M {
+	marshalled, _ := json.Marshal(obj)
+	data := bson.M{}
+	err := json.Unmarshal(marshalled, &data)
+	if err != nil {
+		log.Panic("could not unmarshall data")
+	}
+	return data
 }

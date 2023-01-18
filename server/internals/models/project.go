@@ -25,11 +25,11 @@ type Project struct {
 	UpdatedAt   primitive.DateTime  `bson:"updatedAt,omitempty"   json:"updatedAt,omitempty"`
 }
 
-type ProjectModel struct {
+type ProjectCollection struct {
 	collection *mongo.Collection
 }
 
-func (m *ProjectModel) Init(db *mongo.Database) error {
+func (m *ProjectCollection) Init(db *mongo.Database) error {
 	const collectionName = "projects"
 	if db == nil {
 		return errors.New("database does not exist")
@@ -60,7 +60,7 @@ func (m *ProjectModel) Init(db *mongo.Database) error {
 	return nil
 }
 
-func (m *ProjectModel) jsonSchema() bson.M {
+func (m *ProjectCollection) jsonSchema() bson.M {
 	return bson.M{
 		"bsonType": "object",
 		"required": []string{"title", "createdBy"},
@@ -89,7 +89,7 @@ func (m *ProjectModel) jsonSchema() bson.M {
 	}
 }
 
-func (m *ProjectModel) Insert(ctx context.Context, t *Project) (*mongo.InsertOneResult, error) {
+func (m *ProjectCollection) Insert(ctx context.Context, t *Project) (*mongo.InsertOneResult, error) {
 	t.ID = primitive.NewObjectID()
 	t.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	t.UpdatedAt = t.CreatedAt
@@ -101,7 +101,7 @@ func (m *ProjectModel) Insert(ctx context.Context, t *Project) (*mongo.InsertOne
 	return result, nil
 }
 
-func (m *ProjectModel) Get(ctx context.Context, id string) (*Project, error) {
+func (m *ProjectCollection) Get(ctx context.Context, id string) (*Project, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		log.Printf("oid %v, id %v", oid, id)
@@ -118,7 +118,7 @@ func (m *ProjectModel) Get(ctx context.Context, id string) (*Project, error) {
 	return result, nil
 }
 
-func (m *ProjectModel) UpdateOne(ctx context.Context, id string, project bson.M) (int64, error) {
+func (m *ProjectCollection) UpdateOne(ctx context.Context, id string, project bson.M) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err
@@ -140,7 +140,7 @@ func (m *ProjectModel) UpdateOne(ctx context.Context, id string, project bson.M)
 	return result.MatchedCount, nil
 }
 
-func (m *ProjectModel) Delete(ctx context.Context, id string) (int64, error) {
+func (m *ProjectCollection) Delete(ctx context.Context, id string) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err

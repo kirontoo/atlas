@@ -140,7 +140,7 @@ func (m *UserCollection) Insert(ctx context.Context, u *User) (*User, error) {
 	return u, nil
 }
 
-func (m *UserCollection) Update(
+func (m *UserCollection) UpdateOne(
 	ctx context.Context,
 	id string,
 	u map[string]interface{},

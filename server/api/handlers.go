@@ -196,7 +196,7 @@ func (s *api) userUpdate(c *gin.Context) {
 
 		id := getCurrentUserId(c)
 
-		modified, err := s.users.Update(ctx, id, update)
+		modified, err := s.users.UpdateOne(ctx, id, update)
 		if err != nil {
 			log.Print(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update user"})

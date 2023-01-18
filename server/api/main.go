@@ -17,14 +17,16 @@ const (
 )
 
 type api struct {
-	router  *gin.Engine
-	tickets *models.TicketModel
-	users   *models.UserCollection
+	router   *gin.Engine
+	tickets  *models.TicketModel
+	users    *models.UserCollection
+	projects *models.ProjectCollection
 }
 
 var (
-	db    *mongo.Database
-	users = &models.UserCollection{}
+	db       *mongo.Database
+	users    = &models.UserCollection{}
+	projects = &models.ProjectCollection{}
 )
 
 func main() {
@@ -55,13 +57,19 @@ func main() {
 		log.Fatalf("could not make user collection: %v", err)
 	}
 
+	err = projects.Init(db)
+	if err != nil {
+		log.Fatalf("could not make user collection: %v", err)
+	}
+
 	api := &api{
 		router: gin.New(),
 		tickets: &models.TicketModel{
 			DB:         mongoClient,
 			Collection: getCollection(mongoClient, "tickets"),
 		},
-		users: users,
+		users:    users,
+		projects: projects,
 	}
 
 	// set middlewares

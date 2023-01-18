@@ -15,15 +15,15 @@ import (
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"        json:"_id"`
-	UID       string             `bson:"uid,omitempty"        json:"uid"`
-	Username  string             `bson:"username,omitempty"   json:"username"`
-	Email     string             `bson:"email,omitempty"      json:"email"`
-	Role      Role               `bson:"role,omitempty"       json:"role"`
-	FirstName string             `bson:"firstName,omitempty"  json:"firstName"`
-	LastName  string             `bson:"lastName,omitempty"   json:"lastName"`
-	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
+	ID        primitive.ObjectID `bson:"_id,omitempty"       json:"_id"`
+	UID       string             `bson:"uid,omitempty"       json:"uid"`
+	Username  string             `bson:"username,omitempty"  json:"username"`
+	Email     string             `bson:"email,omitempty"     json:"email"`
+	Role      Role               `bson:"role,omitempty"      json:"role"`
+	FirstName string             `bson:"firstName,omitempty" json:"firstName"`
+	LastName  string             `bson:"lastName,omitempty"  json:"lastName"`
+	CreatedAt primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UpdatedAt primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
 
 type UserCollection struct {
@@ -140,20 +140,23 @@ func (m *UserCollection) Insert(ctx context.Context, u *User) (*User, error) {
 	return u, nil
 }
 
-func (m *UserCollection) Update(ctx context.Context, id string, u *User) (int64, error) {
+func (m *UserCollection) Update(
+	ctx context.Context,
+	id string,
+	u map[string]interface{},
+) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err
 	}
-	filter := bson.D{{Key: "_id", Value: oid}}
-	u.ID = oid
-	u.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	filter := bson.M{"_id": oid}
+	u["updatedAt"] = primitive.NewDateTimeFromTime(time.Now())
 
 	doc, err := toBsonDocument(u)
 	if err != nil {
 		return 0, err
 	}
-	update := bson.D{{Key: "$set", Value: doc}}
+	update := bson.M{"$set": doc}
 
 	result, err := m.collection.UpdateOne(ctx, filter, update, nil)
 	if err != nil || result.MatchedCount == 0 {
@@ -164,5 +167,15 @@ func (m *UserCollection) Update(ctx context.Context, id string, u *User) (int64,
 }
 
 func (m *UserCollection) Delete(ctx context.Context, id string) (int64, error) {
-	return 0, nil
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, err
+	}
+
+	deleted, err := m.collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return 0, err
+	}
+
+	return deleted.DeletedCount, nil
 }

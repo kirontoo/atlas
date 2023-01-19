@@ -87,7 +87,7 @@ func (m *UserCollection) Init(db *mongo.Database) error {
 
 		opts := options.CreateCollection().SetValidator(validator)
 
-		err := db.CreateCollection(context.TODO(), "users", opts)
+		err := db.CreateCollection(context.TODO(), collectionName, opts)
 		if err != nil {
 			log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
 			return err

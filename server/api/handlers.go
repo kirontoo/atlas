@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kirontoo/atlas/server/internals/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (s *api) CreateTicket(c *gin.Context) {
@@ -254,5 +255,69 @@ func (s *api) CreateProject(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"success": true, "data": result, "message": "user created"})
+	c.JSON(200, gin.H{"success": true, "data": result, "message": "project created"})
+}
+
+func (s *api) DeleteProject(c *gin.Context) {
+	id := c.Params.ByName("id")
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	_, err := s.projects.Delete(ctx, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ""})
+	}
+	c.JSON(
+		http.StatusOK,
+		gin.H{"success": true, "data": nil, "message": fmt.Sprintf("Deleted project %s", id)},
+	)
+}
+
+func (s *api) UpdateProject(c *gin.Context) {
+	id := c.Params.ByName("id")
+
+	type validProjectFields struct {
+		Title       string             `form:"title"       json:"title"`
+		ProjectHead primitive.ObjectID `form:"projectHead" json:"projectHead,omitempty"`
+		Description string             `form:"description" json:"description,omitempty"`
+		Deadline    primitive.DateTime `form:"deadline"    json:"deadline,omitempty"`
+	}
+
+	dataToUpdate := validProjectFields{}
+
+	if err := c.BindJSON(&dataToUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	p := structToMap(dataToUpdate)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	result, err := s.projects.UpdateOne(ctx, id, p)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *api) GetProjectById(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	id := c.Params.ByName("id")
+
+	result, err := s.projects.Get(ctx, id)
+	if errors.Is(err, models.ErrNoRecord) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ticket does not exist"})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": result})
 }

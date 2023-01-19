@@ -227,3 +227,32 @@ func (s *api) userDelete(c *gin.Context) {
 		return
 	}
 }
+
+func (s *api) CreateProject(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var project *models.Project
+
+	user, exists := getCurrentUser(c)
+	if !exists {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	if err := c.BindJSON(&project); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	project.CreatedBy = user.ID
+
+	result, err := s.projects.Insert(ctx, project)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "order was not created"})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "data": result, "message": "user created"})
+}

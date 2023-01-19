@@ -93,6 +93,13 @@ func main() {
 		userRouter.PATCH(("/"), api.userUpdate)
 	}
 
+	projectRouter := api.router.Group("/api/projects")
+	projectRouter.Use(AuthRequired())
+	{
+		projectRouter.POST("/", api.CreateProject)
+	}
+
+
 	api.router.POST("/api/users", api.UserSignup)
 
 	api.router.GET("/ping", func(c *gin.Context) {

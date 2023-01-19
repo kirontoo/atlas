@@ -15,14 +15,14 @@ import (
 )
 
 type Project struct {
-	ID          primitive.ObjectID  `bson:"_id,omitempty"         json:"_id"`
-	Title       string              `bson:"title,omitempty"       json:"title"`
-	ProjectHead primitive.ObjectID  `bson:"projectHead,omitempty" json:"projectHead,omitempty"`
-	Description string              `bson:"description,omitempty" json:"description,omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"         json:"_id"`
+	Title       string             `bson:"title,omitempty"       json:"title"`
+	ProjectHead primitive.ObjectID `bson:"projectHead,omitempty" json:"projectHead,omitempty"`
+	Description string             `bson:"description,omitempty" json:"description,omitempty"`
 	CreatedBy   primitive.ObjectID `bson:"createdBy,omitempty"   json:"createdBy"`
 	Deadline    primitive.DateTime `bson:"deadline,omitempty"    json:"deadline,omitempty"`
-	CreatedAt   primitive.DateTime  `bson:"createdAt,omitempty"   json:"createdAt,omitempty"`
-	UpdatedAt   primitive.DateTime  `bson:"updatedAt,omitempty"   json:"updatedAt,omitempty"`
+	CreatedAt   primitive.DateTime `bson:"createdAt,omitempty"   json:"createdAt,omitempty"`
+	UpdatedAt   primitive.DateTime `bson:"updatedAt,omitempty"   json:"updatedAt,omitempty"`
 }
 
 type ProjectCollection struct {
@@ -48,7 +48,7 @@ func (m *ProjectCollection) Init(db *mongo.Database) error {
 
 		opts := options.CreateCollection().SetValidator(validator)
 
-		err := db.CreateCollection(context.TODO(), "users", opts)
+		err := db.CreateCollection(context.TODO(), collectionName, opts)
 		if err != nil {
 			log.Output(2, fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
 			return err
@@ -66,7 +66,7 @@ func (m *ProjectCollection) jsonSchema() bson.M {
 		"required": []string{"title", "createdBy"},
 		"properties": bson.M{
 			"title": bson.M{
-				"bsonType": "string",
+				"bsonType":    "string",
 				"description": "the title of the project, which is required and must be a string",
 			},
 			"createdBy": bson.M{
@@ -78,30 +78,36 @@ func (m *ProjectCollection) jsonSchema() bson.M {
 				"description": "ID reference of the user that is in charge of the project, which is required and must be a string",
 			},
 			"description": bson.M{
-				"bsonType": "string",
+				"bsonType":    "string",
 				"description": "the description of the project, which is required and must be a string",
 			},
 			"deadline": bson.M{
-				"bsonType": "date",
+				"bsonType":    "date",
 				"description": "the date of when this project is due",
 			},
 		},
 	}
 }
 
-func (m *ProjectCollection) Insert(ctx context.Context, t *Project) (*mongo.InsertOneResult, error) {
-	t.ID = primitive.NewObjectID()
-	t.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
-	t.UpdatedAt = t.CreatedAt
+func (m *ProjectCollection) Insert(
+	ctx context.Context,
+	p *Project,
+) (*Project, error) {
+	p.ID = primitive.NewObjectID()
+	p.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	p.UpdatedAt = p.CreatedAt
 
-	result, err := m.collection.InsertOne(ctx, t)
+	_, err := m.collection.InsertOne(ctx, p)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return p, nil
 }
 
-func (m *ProjectCollection) Get(ctx context.Context, id string) (*Project, error) {
+func (m *ProjectCollection) Get(
+	ctx context.Context,
+	id string,
+) (*Project, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		log.Printf("oid %v, id %v", oid, id)
@@ -109,7 +115,9 @@ func (m *ProjectCollection) Get(ctx context.Context, id string) (*Project, error
 	}
 	var result *Project
 
-	err = m.collection.FindOne(ctx, bson.D{{Key: "_id", Value: oid}}).Decode(&result)
+	err = m.collection.
+		FindOne(ctx, bson.D{{Key: "_id", Value: oid}}).
+		Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, ErrNoRecord
@@ -118,7 +126,11 @@ func (m *ProjectCollection) Get(ctx context.Context, id string) (*Project, error
 	return result, nil
 }
 
-func (m *ProjectCollection) UpdateOne(ctx context.Context, id string, project bson.M) (int64, error) {
+func (m *ProjectCollection) UpdateOne(
+	ctx context.Context,
+	id string,
+	project bson.M,
+) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err
@@ -140,7 +152,10 @@ func (m *ProjectCollection) UpdateOne(ctx context.Context, id string, project bs
 	return result.MatchedCount, nil
 }
 
-func (m *ProjectCollection) Delete(ctx context.Context, id string) (int64, error) {
+func (m *ProjectCollection) Delete(
+	ctx context.Context,
+	id string,
+) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, err

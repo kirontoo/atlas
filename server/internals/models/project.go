@@ -110,7 +110,6 @@ func (m *ProjectCollection) Get(
 ) (*Project, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		log.Printf("oid %v, id %v", oid, id)
 		return nil, err
 	}
 	var result *Project
@@ -128,14 +127,9 @@ func (m *ProjectCollection) Get(
 
 func (m *ProjectCollection) UpdateOne(
 	ctx context.Context,
-	id string,
 	project bson.M,
+	filters bson.M,
 ) (int64, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return 0, err
-	}
-	filter := bson.M{"_id": oid}
 	project["updatedAt"] = primitive.NewDateTimeFromTime(time.Now())
 
 	doc, err := toBsonDocument(project)
@@ -144,7 +138,7 @@ func (m *ProjectCollection) UpdateOne(
 	}
 	update := bson.D{{Key: "$set", Value: doc}}
 
-	result, err := m.collection.UpdateOne(ctx, filter, update, nil)
+	result, err := m.collection.UpdateOne(ctx, filters, update, nil)
 	if err != nil || result.MatchedCount == 0 {
 		return 0, err
 	}

@@ -276,11 +276,17 @@ func (s *api) DeleteProject(c *gin.Context) {
 func (s *api) UpdateProject(c *gin.Context) {
 	id := c.Params.ByName("id")
 
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "project does not exist"})
+		return
+	}
+
 	type validProjectFields struct {
-		Title       string             `form:"title"       json:"title,omitempty"`
+		Title       string              `form:"title"       json:"title,omitempty"`
 		ProjectHead *primitive.ObjectID `form:"projectHead" json:"projectHead,omitempty"`
-		Description string             `form:"description" json:"description,omitempty"`
-		Deadline    primitive.DateTime `form:"deadline"    json:"deadline,omitempty"`
+		Description string              `form:"description" json:"description,omitempty"`
+		Deadline    primitive.DateTime  `form:"deadline"    json:"deadline,omitempty"`
 	}
 
 	dataToUpdate := validProjectFields{}
@@ -293,21 +299,29 @@ func (s *api) UpdateProject(c *gin.Context) {
 
 	p := structToMap(dataToUpdate)
 
+	user, _ := getCurrentUser(c)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	// TODO: can only update if you're the owner
+	filters := bson.M{
+		"$and": bson.A{
+			bson.M{"_id": oid},
+			bson.M{"createdBy": user.ID},
+		},
+	}
 
-	result, err := s.projects.UpdateOne(ctx, id, p)
+	result, err := s.projects.UpdateOne(ctx, p, filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
-		fmt.Println(err)
 		return
 	}
 
 	if result < 1 {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": fmt.Sprintf("project ID %v does not exist", id)})
-		fmt.Println(err)
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{"status": "error", "message": fmt.Sprintf("could not update project: %v", id)},
+		)
 		return
 	}
 

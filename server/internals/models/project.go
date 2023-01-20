@@ -15,14 +15,14 @@ import (
 )
 
 type Project struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"         json:"_id"`
-	Title       string             `bson:"title,omitempty"       json:"title"`
-	ProjectHead primitive.ObjectID `bson:"projectHead,omitempty" json:"projectHead,omitempty"`
-	Description string             `bson:"description,omitempty" json:"description,omitempty"`
-	CreatedBy   primitive.ObjectID `bson:"createdBy,omitempty"   json:"createdBy"`
-	Deadline    primitive.DateTime `bson:"deadline,omitempty"    json:"deadline,omitempty"`
-	CreatedAt   primitive.DateTime `bson:"createdAt,omitempty"   json:"createdAt,omitempty"`
-	UpdatedAt   primitive.DateTime `bson:"updatedAt,omitempty"   json:"updatedAt,omitempty"`
+	ID          primitive.ObjectID  `bson:"_id,omitempty"         json:"_id"`
+	Title       string              `bson:"title,omitempty"       json:"title,omitempty"`
+	ProjectHead *primitive.ObjectID `bson:"projectHead,omitempty" json:"projectHead,omitempty"`
+	Description string              `bson:"description,omitempty" json:"description,omitempty"`
+	CreatedBy   primitive.ObjectID  `bson:"createdBy,omitempty"   json:"createdBy,omitempty"`
+	Deadline    primitive.DateTime  `bson:"deadline,omitempty"    json:"deadline,omitempty"`
+	CreatedAt   primitive.DateTime  `bson:"createdAt,omitempty"   json:"createdAt,omitempty"`
+	UpdatedAt   primitive.DateTime  `bson:"updatedAt,omitempty"   json:"updatedAt,omitempty"`
 }
 
 type ProjectCollection struct {
@@ -135,7 +135,7 @@ func (m *ProjectCollection) UpdateOne(
 	if err != nil {
 		return 0, err
 	}
-	filter := bson.D{{Key: "_id", Value: oid}}
+	filter := bson.M{"_id": oid}
 	project["updatedAt"] = primitive.NewDateTimeFromTime(time.Now())
 
 	doc, err := toBsonDocument(project)

@@ -334,9 +334,24 @@ func (s *api) GetProjectById(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	result, err := s.projects.Get(ctx, id)
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "project does not exist"})
+		return
+	}
+
+	user, _ := getCurrentUser(c)
+
+	filters := bson.M{
+		"$and": bson.A{
+			bson.M{"_id": oid},
+			bson.M{"createdBy": user.ID},
+		},
+	}
+
+	result, err := s.projects.Get(ctx, filters)
 	if errors.Is(err, models.ErrNoRecord) {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ticket does not exist"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "project does not exist"})
 		fmt.Println(err)
 		return
 	}

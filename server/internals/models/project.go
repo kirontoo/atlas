@@ -106,16 +106,12 @@ func (m *ProjectCollection) Insert(
 
 func (m *ProjectCollection) Get(
 	ctx context.Context,
-	id string,
+	filters bson.M,
 ) (*Project, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
 	var result *Project
 
-	err = m.collection.
-		FindOne(ctx, bson.D{{Key: "_id", Value: oid}}).
+	err := m.collection.
+		FindOne(ctx, filters).
 		Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {

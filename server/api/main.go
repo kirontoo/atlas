@@ -97,8 +97,11 @@ func main() {
 	projectRouter.Use(AuthRequired())
 	{
 		projectRouter.POST("/", api.CreateProject)
+		projectRouter.GET("/", api.GetAllProjects)
+		projectRouter.GET("/:id", api.GetProjectById)
+		projectRouter.PATCH("/:id", api.UpdateProject)
+		projectRouter.DELETE("/:id", api.DeleteProject)
 	}
-
 
 	api.router.POST("/api/users", api.UserSignup)
 

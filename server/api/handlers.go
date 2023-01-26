@@ -349,12 +349,39 @@ func (s *api) GetProjectById(c *gin.Context) {
 		},
 	}
 
-	result, err := s.projects.Get(ctx, filters)
+	result, err := s.projects.GetOne(ctx, filters)
 	if errors.Is(err, models.ErrNoRecord) {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "project does not exist"})
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{"status": "error", "message": "project does not exist"},
+		)
 		fmt.Println(err)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": result})
+}
+
+func (s *api) GetAllProjects(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	user, _ := getCurrentUser(c)
+
+	filters := bson.M{"createdBy": user.ID}
+	projects, err := s.projects.Get(ctx, filters)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{"status": "error", "message": "could find any projects"},
+		)
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"success": true,
+			"data":    bson.M{"projects": projects},
+		},
+	)
 }

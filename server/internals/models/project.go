@@ -107,6 +107,22 @@ func (m *ProjectCollection) Insert(
 func (m *ProjectCollection) Get(
 	ctx context.Context,
 	filters bson.M,
+) ([]Project, error) {
+	cursor, err := m.collection.Find(ctx, filters, nil)
+	if err != nil {
+		return nil, ErrNoRecord
+	}
+
+	var results []Project = []Project{}
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
+func (m *ProjectCollection) GetOne(
+	ctx context.Context,
+	filters bson.M,
 ) (*Project, error) {
 	var result *Project
 

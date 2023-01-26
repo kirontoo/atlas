@@ -10,6 +10,10 @@ func toBsonDocument(s interface{}) (*bson.D, error) {
 	}
 
 	err = bson.Unmarshal(data, &doc)
+	if err != nil {
+		return nil, err
+	}
+
 	return doc, nil
 }
 

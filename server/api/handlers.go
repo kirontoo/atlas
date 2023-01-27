@@ -283,7 +283,7 @@ func (s *api) UpdateProject(c *gin.Context) {
 	}
 
 	type validProjectFields struct {
-		Title       string              `form:"title"       json:"title,omitempty"`
+		Name        string              `form:"name"        json:"name,omitempty"`
 		ProjectHead *primitive.ObjectID `form:"projectHead" json:"projectHead,omitempty"`
 		Description string              `form:"description" json:"description,omitempty"`
 		Deadline    primitive.DateTime  `form:"deadline"    json:"deadline,omitempty"`

@@ -16,7 +16,7 @@ import (
 
 type Project struct {
 	ID          primitive.ObjectID  `bson:"_id,omitempty"         json:"_id"`
-	Title       string              `bson:"title,omitempty"       json:"title,omitempty"`
+	Name        string              `bson:"name,omitempty"        json:"name,omitempty"`
 	ProjectHead *primitive.ObjectID `bson:"projectHead,omitempty" json:"projectHead,omitempty"`
 	Description string              `bson:"description,omitempty" json:"description,omitempty"`
 	CreatedBy   primitive.ObjectID  `bson:"createdBy,omitempty"   json:"createdBy,omitempty"`

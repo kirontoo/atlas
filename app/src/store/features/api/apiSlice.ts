@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { Project } from '../../../types';
+
 export const APIBaseURL = import.meta.env.DEV
   ? 'http://localhost:8080'
   : import.meta.env.BASE_URL;
@@ -51,9 +53,30 @@ export const apiSlice = createApi({
         },
       },
     ),
+    createNewProject: builder.mutation<
+      APIResponse<Project>,
+      { token: string; body: Partial<Project> }
+    >({
+      query: ({ token, body }) => {
+        return {
+          url: '/api/projects',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: { ...body },
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetPingQuery, useCreateUserMutation } = apiSlice;
+export const {
+  useGetPingQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useCreateNewProjectMutation,
+} = apiSlice;
 
 export default apiSlice;

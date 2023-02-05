@@ -14,6 +14,7 @@ function generateProject(): Project {
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     teamMembers: [],
+    deadline: faker.date.future().toISOString(),
     repo: {
       type: RepoType.Github,
       src: 'https://github.com/kirontoo/atlas',
@@ -23,4 +24,4 @@ function generateProject(): Project {
 
 const Projects: Project[] = new Array(3).map(() => generateProject());
 
-export { Projects };
+export { generateProject, Projects };

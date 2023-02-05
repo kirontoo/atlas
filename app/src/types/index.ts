@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 enum Role {
   Admin,
   Member,
@@ -31,7 +32,7 @@ interface Ticket {
   id: UUID;
   tags: string[];
   name: string;
-  assignedUsers: UUID[]; // user ids
+  assigned: UUID[]; // user ids
   description: string;
   dueDate: string | null;
   createdBy: UUID;
@@ -53,7 +54,8 @@ interface Project {
   id: UUID;
   name: string;
   description: string;
-  createdBy: UUID;
+  deadline: string;
+  createdBy: User;
   createdAt: string;
   updatedAt: string;
   teamMembers: UUID[]; // user ids

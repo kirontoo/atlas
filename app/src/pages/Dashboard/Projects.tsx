@@ -15,12 +15,16 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FaPlus } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
 import ProjectCard from '../../components/ProjectCard';
 import ProjectsModalForm from '../../components/ProjectsModalForm';
+import { selectProjects } from '../../store/features/projects';
 
 function Projects() {
   const { isOpen, onOpen: onOpenModal, onClose } = useDisclosure();
+  const projects = useSelector(selectProjects);
+
   return (
     <>
       <Grid
@@ -39,9 +43,9 @@ function Projects() {
           overflowX="auto"
           maxWidth="100vw"
         >
-          <ProjectCard />
-          <ProjectCard />
-          <ProjectCard />
+          {projects.map((p) => (
+            <ProjectCard key={p.id} name={p.name} description={p.description} id={p.id} />
+          ))}
 
           <Box
             maxW={'450px'}

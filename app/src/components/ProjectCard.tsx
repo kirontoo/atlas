@@ -1,7 +1,14 @@
 import { Avatar, useColorModeValue } from '@chakra-ui/react';
 import { Box, Button, Heading, Image, Stack, Text } from '@chakra-ui/react';
+import { UUID } from '../types';
 
-function ProjectCard() {
+interface ProjectCardProps {
+  name: string;
+  description: string;
+  id: UUID;
+}
+
+function ProjectCard({ name, description, id }: ProjectCardProps) {
   return (
     <Box
       maxW={'450px'}
@@ -32,10 +39,10 @@ function ProjectCard() {
           fontSize={'xl'}
           fontFamily={'body'}
         >
-          Boost your conversion rate
+          {name}
         </Heading>
         <Text color={'gray.500'} fontSize="sm">
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+          {description}
         </Text>
         <Button size="sm" variant="outline" textTransform="uppercase" w="fit-content">
           View Project

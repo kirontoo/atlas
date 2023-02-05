@@ -9,8 +9,8 @@ function generateProject(): Project {
     ownerId: AdminUser.id,
     id: faker.database.mongodbObjectId(),
     name: `${faker.word.adjective()} ${faker.word.noun()}`,
-    description: faker.company.bs(),
-    createdBy: AdminUser.id,
+    description: faker.lorem.paragraph(),
+    createdBy: AdminUser,
     createdAt: faker.date.past().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
     teamMembers: [],
@@ -22,6 +22,6 @@ function generateProject(): Project {
   };
 }
 
-const Projects: Project[] = new Array(3).map(() => generateProject());
+const Projects: Project[] = new Array(3).fill(null).map(() => generateProject());
 
 export { generateProject, Projects };

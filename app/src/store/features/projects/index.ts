@@ -4,6 +4,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Project } from '../../../types';
 import { RootState } from '../../reducer';
+import { Projects } from './MockProjectData';
 
 export interface ProjectState {
   loading: boolean;
@@ -13,7 +14,7 @@ export interface ProjectState {
 
 const initialState: ProjectState = {
   loading: false,
-  projects: [],
+  projects: Projects,
 };
 
 enum ProjectsActions {

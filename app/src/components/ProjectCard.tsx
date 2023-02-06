@@ -1,6 +1,9 @@
-import { Avatar, useColorModeValue } from '@chakra-ui/react';
+import { useColorModeValue } from '@chakra-ui/react';
 import { Box, Button, Heading, Image, Stack, Text } from '@chakra-ui/react';
+import { Link as ReactLink } from 'react-router-dom';
+
 import { UUID } from '../types';
+import { dashboardProjectsRoute } from '../utils/routes';
 
 interface ProjectCardProps {
   name: string;
@@ -44,7 +47,14 @@ function ProjectCard({ name, description, id }: ProjectCardProps) {
         <Text color={'gray.500'} fontSize="sm">
           {description}
         </Text>
-        <Button size="sm" variant="outline" textTransform="uppercase" w="fit-content">
+        <Button
+          size="sm"
+          variant="outline"
+          textTransform="uppercase"
+          w="fit-content"
+          as={ReactLink}
+          to={`${dashboardProjectsRoute}/${id}`}
+        >
           View Project
         </Button>
       </Stack>

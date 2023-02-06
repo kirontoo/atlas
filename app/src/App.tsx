@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './pages/Dashboard';
+import ProjectId from './pages/Dashboard/ProjectId';
 import Projects from './pages/Dashboard/Projects';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
@@ -62,6 +63,10 @@ function App() {
         >
           <Route path="" element={<div> hello home</div>} />
           <Route path={routeNames.dashboardProjectsRoute} element={<Projects />} />
+          <Route
+            path={`${routeNames.dashboardProjectsRoute}/:id`}
+            element={<ProjectId />}
+          />
           <Route path={routeNames.dashboardTicketsRoute} element={<div>tickets</div>} />
           <Route path={routeNames.dashboardSettingsRoute} element={<div>settings</div>} />
         </Route>

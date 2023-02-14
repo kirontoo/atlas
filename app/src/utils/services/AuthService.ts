@@ -37,7 +37,7 @@ export interface SignupCredentials {
 export const LOCAL_STORAGE_USER = 'ATLAS-AUTH-USER';
 
 export const getLocalStorageUser = (): User | null =>
-  JSON.parse(localStorage.getItem('authUser') || '{}') as User;
+  JSON.parse(localStorage.getItem(LOCAL_STORAGE_USER) || '{}') as User;
 
 export const setLocalStorageUser = (user: User) =>
   localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(user));
